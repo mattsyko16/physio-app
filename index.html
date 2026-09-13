@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Physio Master Hub v7.1 Rehab Coach</title>
+<title>Physio Master Hub v7.2 Rehab Coach</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--blue:#2563eb;--green:#16a34a;--amber:#f59e0b;--red:#dc2626;}
 *{box-sizing:border-box}
@@ -117,11 +117,18 @@ body{max-width:1100px;margin:0 auto}
 .complete-confirm .btn{background:var(--green)}
 .complete-confirm.saved{border-color:#86efac;background:#ecfdf5}
 
+
+.routine-preview{margin-top:12px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px}
+.routine-preview h3{font-size:14px;margin:0 0 8px}
+.routine-list{margin:0;padding-left:20px}
+.routine-list li{margin:6px 0;font-size:12px;line-height:1.35}
+.routine-list .essential{font-weight:800}
+
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>✅ Physio Master Hub v7.1 Rehab Coach</h1>
+  <h1>✅ Physio Master Hub v7.2 Rehab Coach</h1>
   <p class="sub">Stable build: day-by-day behaviour, start date/day type, saved progress per date, readiness, load planner, gig mode, and optional elbow add-ons.</p>
   <div class="nav">
     <button class="tabbtn active" id="tabPlanBtn" onclick="showTab('plan')">Plan</button>
@@ -177,6 +184,10 @@ body{max-width:1100px;margin:0 auto}
     </div>
     <div class="quicknote small">
       <b>Quick 15 rule:</b> elbow flexion pronation + hammer curl are always included. The rest of the session is selected from your existing programme for the chosen focus. It records only what you actually complete; it does not mark the omitted full-workout exercises as done.
+    </div>
+    <div class="routine-preview" id="quickRoutinePreview">
+      <h3>Selected Quick 15 routine</h3>
+      <div id="quickRoutineList" class="small">Choose a focus to preview the exercises.</div>
     </div>
   </div>
 
@@ -471,7 +482,7 @@ body{max-width:1100px;margin:0 auto}
   </div>
 </div>
 
-<div class="footer">v7.1 • Rehab Coach • Quick 15 / Full • Confirm completion • Load tracking</div>
+<div class="footer">v7.2 • Rehab Coach • Quick 15 routine preview • Confirm completion • Load tracking</div>
 
 
 <script>
@@ -712,6 +723,7 @@ function setSelectedDate(d){
   loadLoadToUI();
   const coach=document.getElementById("coachIssue");
   if(coach) coach.value=getCoachIssue();
+  renderQuickRoutinePreview();
   buildCoachRecommendation();
 }
 
@@ -1128,6 +1140,7 @@ function setWorkoutMode(mode){
   document.getElementById("modeQuick").classList.toggle("active",mode==="quick");
   document.getElementById("quickOptions").hidden=mode!=="quick";
   document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(getQuickFocus()) : "Full workout";
+  renderQuickRoutinePreview();
   guided=null; guidedDate=null;
   renderWorkout();
 }
@@ -1135,7 +1148,9 @@ function setWorkoutMode(mode){
 function setQuickFocus(focus){
   localStorage.setItem(QUICK_FOCUS_KEY,focus);
   document.querySelectorAll(".focusbtn").forEach(b=>b.classList.toggle("active",b.dataset.focus===focus));
-  document.getElementById("modeSummary").textContent="Quick 15 · "+quickFocusLabel(focus);
+  const summary=document.getElementById("modeSummary");
+  if(summary) summary.textContent="Quick 15 · "+quickFocusLabel(focus);
+  renderQuickRoutinePreview();
   guided=null; guidedDate=null;
   renderWorkout();
 }
@@ -1190,9 +1205,8 @@ function getCoachIssue(){
 }
 function setCoachIssue(issue){
   localStorage.setItem(coachKey(currentDate),issue);
-  localStorage.setItem(QUICK_FOCUS_KEY,issue);
   const qs=document.getElementById("coachIssue"); if(qs) qs.value=issue;
-  document.querySelectorAll(".focusbtn").forEach(b=>b.classList.toggle("active",b.dataset.focus===issue));
+  setQuickFocus(issue);
   buildCoachRecommendation();
 }
 
@@ -1298,6 +1312,28 @@ function quickWorkoutList(){
   const ids=QUICK_IDS[getQuickFocus()]||QUICK_IDS.general;
   return ids.map(id=>map.get(id)).filter(Boolean);
 }
+
+function renderQuickRoutinePreview(){
+  const box=document.getElementById("quickRoutineList");
+  if(!box) return;
+  const items=quickWorkoutList();
+  if(!items.length){
+    box.textContent="No exercises available for this focus on the selected date.";
+    return;
+  }
+  const ul=document.createElement("ul");
+  ul.className="routine-list";
+  items.forEach(item=>{
+    const li=document.createElement("li");
+    const essential=item.id==="el_pronation_daily"||item.id==="el_hammer_daily";
+    li.className=essential?"essential":"";
+    li.textContent=(essential?"ESSENTIAL · ":"")+item.title+" — "+item.meta;
+    ul.appendChild(li);
+  });
+  box.innerHTML="";
+  box.appendChild(ul);
+}
+
 
 function speakPrompt(msg){
   if(localStorage.getItem("physio:voicePrompts")!=="1" || !("speechSynthesis" in window)) return;
@@ -1609,6 +1645,7 @@ function initAppTools(){
  document.getElementById("quickOptions").hidden=mode!=="quick";
  document.querySelectorAll(".focusbtn").forEach(b=>b.classList.toggle("active",b.dataset.focus===focus));
  document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(focus) : "Full workout";
+ renderQuickRoutinePreview();
  document.addEventListener('pointerdown',()=>{if(document.getElementById('timerSound').checked)prepareSound();});
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&awakeWanted)requestScreenAwake();});
 }
