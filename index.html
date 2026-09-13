@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Physio Master Hub v5 Stable</title>
+<title>Physio Master Hub v6 Rehab Coach</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--blue:#2563eb;--green:#16a34a;--amber:#f59e0b;--red:#dc2626;}
 *{box-sizing:border-box}
@@ -53,19 +53,154 @@ th{background:#f9fafb;text-align:left}
 .radioPill input{transform:scale(1.2);margin:0}
 .range{width:100%}
 .footer{font-size:11px;color:var(--muted);margin-top:20px}
+
+.track{margin-top:10px;display:grid;gap:8px}.track .row{gap:6px}.track input[type=number]{width:76px;padding:8px;border:1px solid var(--border);border-radius:8px}.setdone{background:var(--green)!important;color:white!important}.check>div{min-width:0;flex:1}.timer{font-variant-numeric:tabular-nums;font-weight:800}.check.finished{background:#f0fdf4;border-radius:10px;padding:10px}.track label{font-size:12px}.btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+.workout-hero{background:linear-gradient(135deg,#eff6ff,#f8fafc);border:1px solid #bfdbfe;border-radius:16px;padding:16px;margin-bottom:12px}
+.workout-hero h2{font-size:20px;margin:0 0 6px}
+.big-start{font-size:16px;padding:14px 18px;border-radius:14px}
+.cat{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid var(--border);margin:4px 6px 0 0}
+.cat-foot{background:#fef3c7}.cat-mob{background:#ede9fe}.cat-upper{background:#fee2e2}.cat-quad{background:#dcfce7}.cat-nerve{background:#e0f2fe}.cat-pilates{background:#f3e8ff}
+.demo{display:inline-flex;align-items:center;gap:4px;text-decoration:none;margin-top:6px}
+.statgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{border:1px solid var(--border);border-radius:14px;padding:12px;background:#fff}
+.stat b{display:block;font-size:22px;margin-top:4px}
+.complete-card{border:2px solid #bbf7d0;background:#f0fdf4;border-radius:16px;padding:18px;margin-top:14px}
+.complete-card h2{font-size:22px;margin:0 0 8px}
+.mutedbox{background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:10px}
+@media(min-width:700px){.statgrid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+
+.modepicker{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.modebtn{appearance:none;border:1px solid var(--border);background:#fff;color:var(--text);padding:10px 12px;border-radius:12px;font-weight:800;cursor:pointer}
+.modebtn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.focusgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.focusbtn{appearance:none;border:1px solid var(--border);background:#fff;padding:10px;border-radius:12px;font-weight:700;text-align:left;cursor:pointer}
+.focusbtn.active{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.quicknote{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:10px;margin-top:10px}
+@media(min-width:700px){.focusgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+.coach{background:linear-gradient(135deg,#ecfeff,#eff6ff);border:1px solid #bae6fd;border-radius:18px;padding:16px;margin:12px 0}
+.coach h2{font-size:22px;margin:0 0 6px}
+.coachrec{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:12px}
+.coachrec strong{font-size:18px}
+.coachactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.loadrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.loadrow input[type="number"],.loadrow input[type="text"]{width:92px;padding:8px;border:1px solid var(--border);border-radius:8px}
+.prevload{font-size:11px;color:var(--muted)}
+.issueSelect{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff}
+
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>✅ Physio Master Hub v5 Stable</h1>
+  <h1>✅ Physio Master Hub v6 Rehab Coach</h1>
   <p class="sub">Stable build: day-by-day behaviour, start date/day type, saved progress per date, readiness, load planner, gig mode, and optional elbow add-ons.</p>
   <div class="nav">
     <button class="tabbtn active" id="tabPlanBtn" onclick="showTab('plan')">Plan</button>
     <button class="tabbtn" id="tabDashBtn" onclick="showTab('dash')">Readiness & Load</button>
+    <button class="tabbtn" id="tabHistBtn" onclick="showTab('hist')">History</button>
   </div>
 </div>
 
+
 <div id="tabPlan">
+<section class="coach" aria-labelledby="coachHeading">
+  <h2 id="coachHeading">🧭 Rehab Coach</h2>
+  <p class="small">Tell the app what is most noticeable today. It uses today’s saved pain/readiness plus recent pain trend to suggest Quick 15 or the Full Workout. Elbow maintenance stays in every Quick 15 plan.</p>
+
+  <div class="row">
+    <label class="small"><b>Main issue today</b><br>
+      <select id="coachIssue" class="issueSelect" onchange="setCoachIssue(this.value)">
+        <option value="general">General maintenance</option>
+        <option value="neck">Neck stiffness</option>
+        <option value="shoulder">Shoulders</option>
+        <option value="foot">Foot / ankle</option>
+        <option value="quad">Quads / knee</option>
+        <option value="elbow">Elbow priority</option>
+      </select>
+    </label>
+    <button class="btn ghost" onclick="buildCoachRecommendation()">Refresh recommendation</button>
+  </div>
+
+  <div class="coachrec" id="coachRecommendation" aria-live="polite">
+    <strong>Today’s recommendation</strong>
+    <p class="small">Loading…</p>
+  </div>
+</section>
+
+<section class="workout-hero">
+  <h2>▶ Today’s Guided Rehab</h2>
+  <p class="small">Choose the full prescribed session or a shorter maintenance session when time is tight. Quick 15 uses only exercises already in your plan and always includes the daily elbow work.</p>
+
+  <div class="modepicker" aria-label="Workout mode">
+    <button class="modebtn active" id="modeFull" onclick="setWorkoutMode('full')">Full workout</button>
+    <button class="modebtn" id="modeQuick" onclick="setWorkoutMode('quick')">Quick 15</button>
+  </div>
+
+  <div id="quickOptions" hidden>
+    <div class="small"><b>Quick 15 focus</b> — choose the area that needs most attention today:</div>
+    <div class="focusgrid">
+      <button class="focusbtn active" data-focus="general" onclick="setQuickFocus('general')">⭐ General maintenance<br><span class="small">Daily essentials</span></button>
+      <button class="focusbtn" data-focus="neck" onclick="setQuickFocus('neck')">🧍 Neck stiffness<br><span class="small">Neck + upper-back mobility</span></button>
+      <button class="focusbtn" data-focus="shoulder" onclick="setQuickFocus('shoulder')">💪 Shoulders<br><span class="small">Shoulder mobility + control</span></button>
+      <button class="focusbtn" data-focus="foot" onclick="setQuickFocus('foot')">🦶 Foot / ankle<br><span class="small">Plantar + ankle maintenance</span></button>
+      <button class="focusbtn" data-focus="quad" onclick="setQuickFocus('quad')">🦵 Quads<br><span class="small">Knee / quad maintenance</span></button>
+      <button class="focusbtn" data-focus="elbow" onclick="setQuickFocus('elbow')">💪 Elbow priority<br><span class="small">Elbow first + light mobility</span></button>
+    </div>
+    <div class="quicknote small">
+      <b>Quick 15 rule:</b> elbow flexion pronation + hammer curl are always included. The rest of the session is selected from your existing programme for the chosen focus. It records only what you actually complete; it does not mark the omitted full-workout exercises as done.
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:12px">
+    <button class="btn big-start" id="masterStartWorkout" onclick="masterStartWorkout()">Start / Continue Workout</button>
+    <div class="pill">Session progress: <b id="heroProgress">—</b></div>
+    <div class="pill" id="modeSummary">Full workout</div>
+  </div>
+</section>
+<section class="card" id="workout" aria-labelledby="workoutHeading">
+  <div class="row" style="justify-content:space-between"><h2 id="workoutHeading">Guided workout</h2><label class="small">Daily session <select id="workoutSession" onchange="changeWorkoutSession(this.value)"><option value="0">1</option><option value="1">2</option><option value="2">3</option></select></label></div>
+  <p class="small">Works on the selected date below. Each session includes only exercises due in that session. Complete means you have finished all prescribed sets for this exercise in this session.</p>
+  <div id="workoutContent" aria-live="polite">
+    <div class="small" id="workoutCount"></div>
+    <h2 id="workoutTitle" style="font-size:24px;margin:12px 0"></h2>
+    <p id="workoutDose" class="item-meta"></p>
+  </div>
+  <div id="workoutControls">
+    <div class="row" style="margin:18px 0"><label class="small" id="workoutWorkLabel">Work seconds <input id="workoutSeconds" type="number" min="1" max="86400" step="1" value="30" onchange="setWorkoutSeconds()" style="width:90px;padding:10px;border:1px solid var(--border);border-radius:10px"></label><output id="workoutClock" class="timer" style="font-size:36px">0:00</output></div>
+    <div class="row small">
+      <label>Rest seconds <input id="workoutRestSeconds" type="number" min="1" max="86400" value="30" onchange="setWorkoutSeconds()" style="width:80px"></label>
+      <label id="workoutRepsLabel">Reps per set <input id="workoutReps" type="number" min="1" max="200" value="1" onchange="setWorkoutSeconds()" style="width:70px"></label>
+      <label id="workoutSetsLabel">Sets <input id="workoutSets" type="number" min="1" max="50" value="1" onchange="setWorkoutSeconds()" style="width:70px"></label>
+    </div>
+    <h3 id="guidedSetsHeading" style="font-size:14px;margin-bottom:8px">Your sets</h3>
+    <div id="guidedSets"></div>
+    <p id="workoutPhase" role="status" style="font-weight:700"></p>
+    <p class="small" id="workoutTimerHint"></p>
+    <div class="row"><button class="btn ghost" id="workoutStart" onclick="startWorkoutTimer()">Start timer</button><button class="btn ghost" id="workoutPause" onclick="pauseWorkout()">Pause workout</button><button class="btn ghost" onclick="resetWorkoutTimer()">Reset sequence</button><button class="btn ghost" id="workoutRestNow" onclick="startWorkoutRest()">Rest now</button></div>
+    <div class="row" style="margin-top:16px"><button class="btn" id="workoutComplete" onclick="completeWorkoutExercise()">Complete exercise → Next</button><button class="btn ghost" id="workoutSkip" onclick="skipWorkoutExercise()">Skip for now</button><button class="btn ghost" id="workoutUndo" onclick="undoWorkoutExercise()">Undo last completion</button></div>
+  </div>
+  <div style="background:#eef2ff;border-radius:12px;padding:14px;margin-top:18px"><div class="small">UP NEXT · PREPARE</div><b id="workoutNext"></b><p class="item-meta" id="workoutNextDose"></p></div>
+  <div id="workoutCompleteSummary" class="complete-card" hidden></div>
+</section>
+<section class="card" aria-labelledby="appToolsHeading">
+  <h2 id="appToolsHeading">Workout settings & backup</h2>
+  <div class="row">
+    <label class="pill"><input type="checkbox" id="timerSound" onchange="setTimerSound(this.checked)"> Timer finish sound</label>
+    <button class="btn ghost" onclick="testTimerSound()">Test sound</button>
+    <label class="pill"><input type="checkbox" id="keepAwake" onchange="setKeepAwake(this.checked)"> Keep screen awake</label>
+    <label class="pill"><input type="checkbox" id="voicePrompts" onchange="setVoicePrompts(this.checked)"> Voice prompts</label>
+  </div>
+  <p class="small" id="awakeStatus" role="status">Screen awake is off.</p>
+  <p class="small">Sound may be unavailable while your browser is in the background. Screen awake works while this page is visible, where supported.</p>
+  <div class="row"><button class="btn ghost" onclick="exportProgress()">Export progress backup</button><label class="btn ghost" for="restoreFile">Choose backup to restore</label><input id="restoreFile" type="file" accept="application/json,.json" onchange="previewRestore(this.files[0])" style="max-width:100%"></div>
+  <p class="small">The backup includes all saved dates, exercise progress, workout position, pain scores and app settings. Keep it somewhere private. Restore merges the backup into this browser and replaces matching saved entries.</p>
+  <p id="backupStatus" class="small" role="status"></p>
+  <button class="btn" id="confirmRestore" hidden onclick="restoreProgress()">Restore this backup</button>
+</section>
+
   <div class="card">
     <h2 style="margin:0 0 10px;">Start date & rotation</h2>
     <div class="row">
@@ -75,7 +210,9 @@ th{background:#f9fafb;text-align:left}
       <button class="btn ghost" onclick="makeTodayB()">Make today Day B</button>
     </div>
 
+
     <div class="split"></div>
+
 
     <div class="small">Choose whether the <b>start date</b> is treated as Day A or Day B.</div>
     <div class="radioRow" style="margin-top:10px">
@@ -83,6 +220,7 @@ th{background:#f9fafb;text-align:left}
       <label class="radioPill"><input type="radio" name="startType" value="B"> Start date is <b>Day B</b></label>
     </div>
   </div>
+
 
   <div class="card">
     <h2 style="margin:0 0 10px;">14-day dated plan</h2>
@@ -95,6 +233,7 @@ th{background:#f9fafb;text-align:left}
     <div style="overflow:auto;margin-top:8px"><table id="scheduleTbl"></table></div>
   </div>
 
+
   <div class="card">
     <h2 style="margin:0 0 10px;">Checklist for selected date</h2>
     <div class="progress"><div id="bar"></div></div>
@@ -105,12 +244,16 @@ th{background:#f9fafb;text-align:left}
       <div class="pill">Streak: <b id="streak">0</b> days</div>
     </div>
 
+
     <div class="split"></div>
+
 
     <div class="row"><div class="pill">Pain (0–10): <b id="painVal">0</b></div></div>
     <input class="range" type="range" min="0" max="10" step="1" id="pain" />
 
+
     <div class="split"></div>
+
 
     <label class="pill" style="cursor:pointer;">
       <input type="checkbox" id="elbowAllows" style="transform:scale(1.2); margin:0 8px 0 0;">
@@ -120,12 +263,19 @@ th{background:#f9fafb;text-align:left}
       When OFF, the optional elbow hold add-ons are hidden. When ON, they appear in the checklist.
     </div>
 
+
     <div class="split"></div>
+    <label class="pill"><input type="checkbox" id="nerveProgression"> Use Median Nerve Stretch progression once glide is easy</label>
+    <p class="small">OFF: Median Nerve Glide Floss 8. ON: Median Nerve Stretch replaces the glide for this date. Both are 10 reps, twice daily.</p>
+    <p class="small">Tick sets for each session; exercise checkboxes complete or clear all its sets. Timers do not tick sets automatically. Progress is saved for the selected date in this browser.</p>
+    <div class="pill" id="setProgress" aria-live="polite"></div><p class="small" id="saveStatus" role="status"></p>
     <div id="checklist"></div>
+
 
     <div class="split"></div>
     <div class="small"><b>Golden rule:</b> drop <b>external rotation</b> first if needed. Never your mobility. Avoid back-to-back elbow days.</div>
   </div>
+
 
   <div class="card">
     <h2 style="margin:0 0 10px;">Traffic light rehab guide</h2>
@@ -165,6 +315,7 @@ th{background:#f9fafb;text-align:left}
   </div>
 </div>
 
+
 <div id="tabDash" style="display:none;">
   <div class="card">
     <h2 style="margin:0 0 10px;">Gig Mode</h2>
@@ -178,6 +329,7 @@ th{background:#f9fafb;text-align:left}
     <p class="small" style="margin-top:10px">Gig Mode tightens thresholds (protects freshness). It does <b>not</b> mean “no guitar or racing”.</p>
   </div>
 
+
   <div class="card">
     <h2 style="margin:0 0 10px;">Morning readiness (selected date)</h2>
     <label class="small"><b>Morning pain</b></label>
@@ -187,12 +339,14 @@ th{background:#f9fafb;text-align:left}
       <option value="0">5+ (high)</option>
     </select>
 
+
     <label class="small" style="margin-top:10px"><b>Worse than yesterday?</b></label>
     <select id="rTrend">
       <option value="2">No</option>
       <option value="1">Slightly</option>
       <option value="0">Clearly worse</option>
     </select>
+
 
     <label class="small" style="margin-top:10px"><b>Grip test</b></label>
     <select id="rGrip">
@@ -201,6 +355,7 @@ th{background:#f9fafb;text-align:left}
       <option value="0">Weak / painful</option>
     </select>
 
+
     <label class="small" style="margin-top:10px"><b>Forearm freshness</b></label>
     <select id="rFatigue">
       <option value="2">Fresh</option>
@@ -208,12 +363,15 @@ th{background:#f9fafb;text-align:left}
       <option value="0">Already tired</option>
     </select>
 
+
     <div class="row" style="margin-top:12px">
       <button class="btn" onclick="calcReadiness()">Calculate</button>
       <button class="btn ghost" onclick="saveReadinessOnly()">Save</button>
     </div>
 
+
     <div class="split"></div>
+
 
     <div class="row">
       <div class="pill">Readiness: <b id="readinessScore">—</b></div>
@@ -222,9 +380,11 @@ th{background:#f9fafb;text-align:left}
     <div class="warn" id="readinessAdvice"></div>
   </div>
 
+
   <div class="card">
     <h2 style="margin:0 0 10px;">Load planner (selected date)</h2>
     <p class="small">Car washing/detailing/manual gripping tasks count as high arm load.</p>
+
 
     <label><input type="checkbox" id="ldGuitar" /> <b>Guitar</b> (high tendon load)</label>
     <label><input type="checkbox" id="ldRacing" /> <b>Racing / controller gaming</b> (high tendon load)</label>
@@ -233,12 +393,15 @@ th{background:#f9fafb;text-align:left}
     <label><input type="checkbox" id="ldElbow" /> <b>Elbow strengthening</b> (moderate tendon load)</label>
     <label><input type="checkbox" id="ldMob" /> <b>Mobility only</b> (low load)</label>
 
+
     <div class="row" style="margin-top:12px">
       <button class="btn" onclick="calcLoad()">Calculate</button>
       <button class="btn ghost" onclick="saveLoadOnly()">Save</button>
     </div>
 
+
     <div class="split"></div>
+
 
     <div class="row">
       <div class="pill">Load score: <b id="loadScore">—</b></div>
@@ -248,10 +411,39 @@ th{background:#f9fafb;text-align:left}
   </div>
 </div>
 
-<div class="footer">v5 stable</div>
+
+
+<div id="tabHist" style="display:none;">
+  <div class="card">
+    <h2 style="margin:0 0 10px;">This week</h2>
+    <p class="small">Built from progress already saved in this browser.</p>
+    <div class="statgrid">
+      <div class="stat"><span class="small">Sessions completed</span><b id="histSessions">0</b></div>
+      <div class="stat"><span class="small">Exercises completed</span><b id="histExercises">0</b></div>
+      <div class="stat"><span class="small">Sets completed</span><b id="histSets">0</b></div>
+      <div class="stat"><span class="small">Timed work</span><b id="histTime">0m</b></div>
+      <div class="stat"><span class="small">Current streak</span><b id="histStreak">0</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 10px;">Pain trend</h2>
+    <div class="pill">This week: <b id="histPain">—</b></div>
+    <p class="small" id="histPainDetail"></p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 10px;">Recent days</h2>
+    <div style="overflow:auto"><table id="historyTbl"></table></div>
+  </div>
+</div>
+
+<div class="footer">v6 • Rehab Coach + load tracking • Updated June & August 2026 plans</div>
+
 
 <script>
 const DAYS = 14;
+
 
 const everyday = [
   {id:"ank_ham",title:"Hamstring stretch in stand",meta:"1 set • 3 reps • 20s hold (Ankle & Foot #2)"},
@@ -264,23 +456,34 @@ const everyday = [
   {id:"neck_handgrab",title:"Hand Grab Behind Back",meta:"10 reps • perform 3× daily (21-02-2024)"},
   {id:"neck_sideflex",title:"Neck Side Flexion Overstretch",meta:"30s hold • perform 3× daily (21-02-2024)"},
   {id:"sh_er",title:"Active External Rotation Standing",meta:"1 × 20 reps @ 3kg (03-06-2025) — skip if elbow sore"},
-  {id:"sh_tl",title:"Triceps & Lats Stretch",meta:"60s × 2 (03-06-2025)"},
+  {id:"sh_tl",title:"Triceps and Lats Stretch",meta:"30s hold • twice daily (03-08-2026)",video:"https://youtu.be/g4uyCjwPJDw"},
   {id:"sh_foam",title:"Foam Roller: Lats & Teres",meta:"30s on tender points (03-06-2025)"},
   {id:"el_pronation_daily",title:"Elbow Flexion Pronation (band)",meta:"2 × 15 reps • 2× daily (24-03-2026)"},
   {id:"el_hammer_daily",title:"Elbow Flexion Hammer DB",meta:"2 × 8 reps • 2× daily • 3s up / 3s down (24-03-2026)"}
 ];
 
+
+const quad = [
+  {id:"quad_press",title:"Single-Leg Leg Press",meta:"3 × 8 reps • daily • gym equipment (19-06-2026)",video:"https://youtu.be/i-9A1cskveU"},
+  {id:"quad_extension",title:"Single-Leg Leg Extension",meta:"3 × 8 reps • daily • gym equipment (19-06-2026)",video:"https://youtu.be/BPvD5BP_jrI"},
+  {id:"quad_vmo",title:"Inner Range VMO Quadriceps Sitting",meta:"3 × 12 reps • daily (19-06-2026)",video:"https://youtu.be/z6pmyf_Qels"}
+];
+const nerveGlide = {id:"nerve_glide",title:"Median Nerve Glide Floss 8",meta:"10 reps • twice daily (03-08-2026)",video:"https://youtu.be/9IsG0oW6_d4"};
+const nerveStretch = {id:"nerve_stretch",title:"Median Nerve Stretch",meta:"10 reps • twice daily • progression once glide is easy (03-08-2026)",video:"https://youtu.be/eWAS25uPe9Y"};
+function nerveFor(d){ return localStorage.getItem("physio:nerveProgression:"+dateKey(d)) === "1" ? nerveStretch : nerveGlide; }
 const elbowOk_add = [
   {id:"sh_band_er_2021",title:"External Rotation with Band",meta:"3 × 45s holds • 1× daily (15-10-2021)"},
   {id:"sh_lat45_2021",title:"Lateral 45° Raise (palm up)",meta:"3 × 45s holds • 1× daily (15-10-2021)"},
   {id:"el_bicep_2021",title:"Elbow Flexion / Bicep Curl (DB)",meta:"3 × 45s • 1× daily (15-10-2021) — only if elbow OK"}
 ];
 
+
 const dayA_add = [
   {id:"ank_calfraise",title:"Calf raise toes dorsiflexed",meta:"3 sets × 8 reps (Ankle & Foot #5)"},
   {id:"ank_toeext",title:"AROM great toe extension (add ankle weight across foot)",meta:"3 sets × 8 reps (Ankle & Foot #6)"},
   {id:"ank_invert",title:"Resisted ankle inversion (band)",meta:"3 sets × 8 reps (Ankle & Foot #7)"}
 ];
+
 
 const dayB_add = [
   {id:"pil_lumrot",title:"Lumbar Rotation",meta:"Hold 5s × 10 each side (Pilates full)"},
@@ -291,11 +494,12 @@ const dayB_add = [
   {id:"pil_hiptwist",title:"Hip Twist 3",meta:"10 reps each side (Pilates full)"}
 ];
 
+
 function parseISO(iso){
   const [y,m,d] = iso.split("-").map(Number);
   return new Date(y,m-1,d);
 }
-function dateKey(d){ return d.toISOString().slice(0,10); }
+function dateKey(d){ return [d.getFullYear(), String(d.getMonth()+1).padStart(2,"0"), String(d.getDate()).padStart(2,"0")].join("-"); }
 function fmtDate(d){
   return d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"2-digit"});
 }
@@ -305,8 +509,10 @@ function diffDays(a,b){
   return Math.floor((one-two)/86400000);
 }
 
+
 const START_KEY = "physio:startDateISO";
 const START_TYPE_KEY = "physio:startType";
+
 
 function getStartISO(){ return localStorage.getItem(START_KEY) || dateKey(new Date()); }
 function getStartType(){ return localStorage.getItem(START_TYPE_KEY) || "A"; }
@@ -314,6 +520,7 @@ function setStart(iso,type){
   localStorage.setItem(START_KEY, iso);
   localStorage.setItem(START_TYPE_KEY, type);
 }
+
 
 function getDayType(d){
   const start = parseISO(getStartISO());
@@ -324,22 +531,26 @@ function getDayType(d){
   return st === "A" ? "B" : "A";
 }
 
+
 function elbowOkKey(d){ return "physio:elbowOK:" + dateKey(d); }
 function isElbowOk(d){ return localStorage.getItem(elbowOkKey(d)) === "1"; }
 function setElbowOk(d,v){ localStorage.setItem(elbowOkKey(d), v ? "1" : "0"); }
 
-function getChecklist(type, elbowOk){
-  const list = [...everyday];
+
+function getChecklist(type, elbowOk, d = currentDate){
+  const list = [...everyday, ...quad, nerveFor(d)];
   if(elbowOk) list.push(...elbowOk_add);
   if(type === "A") list.push(...dayA_add);
   if(type === "B") list.push(...dayB_add);
   return list;
 }
 
+
 function ckKey(d){ return "physio:checks:" + dateKey(d); }
 function painKey(d){ return "physio:pain:" + dateKey(d); }
 function readinessKey(d){ return "physio:ready:" + dateKey(d); }
 function loadKey(d){ return "physio:load:" + dateKey(d); }
+
 
 function loadJson(key,fallback){
   try{
@@ -351,7 +562,9 @@ function loadJson(key,fallback){
 }
 function saveJson(key,obj){ localStorage.setItem(key, JSON.stringify(obj)); }
 
+
 let currentDate = new Date();
+
 
 function clampToWindow(d){
   const start = parseISO(getStartISO());
@@ -363,16 +576,19 @@ function clampToWindow(d){
   return sel;
 }
 
+
 function renderSchedule(){
   const startISO = getStartISO();
   const start = parseISO(startISO);
   document.getElementById("startLabel").textContent = fmtDate(start);
   document.getElementById("startPicker").value = startISO;
 
+
   const st = getStartType();
   document.querySelectorAll('input[name="startType"]').forEach(r => {
     r.checked = (r.value === st);
   });
+
 
   let html = "<tr><th>Date</th><th>Type</th></tr>";
   for(let i=0;i<DAYS;i++){
@@ -386,12 +602,14 @@ function renderSchedule(){
   }
   document.getElementById("scheduleTbl").innerHTML = html;
 
+
   const dp = document.getElementById("datePicker");
   const end = new Date(start);
   end.setDate(start.getDate()+DAYS-1);
   dp.min = dateKey(start);
   dp.max = dateKey(end);
 }
+
 
 function computeStreak(){
   const now = new Date();
@@ -401,7 +619,7 @@ function computeStreak(){
     d.setDate(now.getDate()-i);
     const type = getDayType(d);
     if(!type) break;
-    const list = getChecklist(type, isElbowOk(d));
+    const list = getChecklist(type, isElbowOk(d), d);
     const state = loadJson(ckKey(d), {});
     const done = list.filter(it => state[it.id]).length;
     const pct = list.length ? (done/list.length) : 0;
@@ -411,13 +629,16 @@ function computeStreak(){
   return streak;
 }
 
+
 function renderCurrentDate(){
   setSelectedDate(new Date(currentDate));
 }
 
+
 function setSelectedDate(d){
   currentDate = clampToWindow(d);
   const type = getDayType(currentDate) || "A";
+
 
   document.getElementById("selDateLabel").textContent = fmtDate(currentDate);
   const tag = document.getElementById("selTag");
@@ -425,6 +646,10 @@ function setSelectedDate(d){
   tag.textContent = type === "A" ? "DAY A" : "DAY B";
   document.getElementById("datePicker").value = dateKey(currentDate);
 
+
+  const np = document.getElementById("nerveProgression");
+  np.checked = nerveFor(currentDate).id === "nerve_stretch";
+  np.onchange = () => { localStorage.setItem("physio:nerveProgression:"+dateKey(currentDate),np.checked ? "1" : "0"); renderCurrentDate(); };
   const storedPain = localStorage.getItem(painKey(currentDate));
   const pr = document.getElementById("pain");
   pr.value = storedPain !== null ? storedPain : 0;
@@ -432,7 +657,9 @@ function setSelectedDate(d){
   pr.oninput = () => {
     document.getElementById("painVal").textContent = pr.value;
     localStorage.setItem(painKey(currentDate), pr.value);
+    buildCoachRecommendation();
   };
+
 
   const eo = document.getElementById("elbowAllows");
   eo.checked = isElbowOk(currentDate);
@@ -441,26 +668,36 @@ function setSelectedDate(d){
     renderCurrentDate();
   };
 
+
   document.getElementById("btnMarkAll").onclick = () => markAll(currentDate, type, isElbowOk(currentDate), true);
   document.getElementById("btnResetDay").onclick = () => markAll(currentDate, type, isElbowOk(currentDate), false);
+
 
   renderChecklist(currentDate, type, isElbowOk(currentDate));
   updateProgress(currentDate, type, isElbowOk(currentDate));
   loadReadinessToUI();
   loadLoadToUI();
+  const coach=document.getElementById("coachIssue");
+  if(coach) coach.value=getCoachIssue();
+  buildCoachRecommendation();
 }
+
 
 function renderChecklist(d,type,elbowOk){
   const container = document.getElementById("checklist");
   container.innerHTML = "";
   const state = loadJson(ckKey(d), {});
 
+
   const groups = [
     {name:"Everyday (do on both Day A & Day B)", items:everyday},
+    {name:"Quadriceps — 19 Jun 2026", items:quad},
+    {name:"Median nerve — 3 Aug 2026", items:[nerveFor(d)]},
     ...(elbowOk ? [{name:"Only when elbow allows (optional add-ons)", items:elbowOk_add}] : []),
     ...(type === "A" ? [{name:"Day A add-ons (full ankle)", items:dayA_add}] : []),
     ...(type === "B" ? [{name:"Day B add-ons (Full Pilates)", items:dayB_add}] : [])
   ];
+
 
   groups.forEach(g => {
     const h = document.createElement("div");
@@ -470,12 +707,16 @@ function renderChecklist(d,type,elbowOk){
     h.textContent = g.name;
     container.appendChild(h);
 
+
     g.items.forEach(item => {
       const row = document.createElement("div");
       row.className = "check";
 
+
       const cb = document.createElement("input");
       cb.type = "checkbox";
+      cb.setAttribute("aria-label", item.title + " complete");
+      row.dataset.exercise = item.id;
       cb.checked = !!state[item.id];
       cb.onchange = () => {
         const s = loadJson(ckKey(d), {});
@@ -483,6 +724,7 @@ function renderChecklist(d,type,elbowOk){
         saveJson(ckKey(d), s);
         updateProgress(d, type, isElbowOk(d));
       };
+
 
       const text = document.createElement("div");
       const t = document.createElement("div");
@@ -492,12 +734,22 @@ function renderChecklist(d,type,elbowOk){
       m.className = "item-meta";
       m.textContent = item.meta;
 
+
       text.appendChild(t);
       text.appendChild(m);
+      const cat=categoryFor(item), catEl=document.createElement("span");
+      catEl.className="cat "+cat.cls; catEl.textContent=cat.label; text.appendChild(catEl);
+      if(item.video){
+        const demo=document.createElement("a");
+        demo.className="btn ghost demo"; demo.href=item.video; demo.target="_blank"; demo.rel="noopener noreferrer";
+        demo.textContent="▶ Watch Demo"; text.appendChild(demo);
+      }
       row.appendChild(cb);
       row.appendChild(text);
       container.appendChild(row);
+      attachTracker(row, text, cb, item, d, type);
     });
+
 
     const split = document.createElement("div");
     split.className = "split";
@@ -505,28 +757,33 @@ function renderChecklist(d,type,elbowOk){
   });
 }
 
+
 function updateProgress(d,type,elbowOk){
-  const list = getChecklist(type, elbowOk);
+  const list = getChecklist(type, elbowOk, d);
   const state = loadJson(ckKey(d), {});
   const done = list.filter(i => state[i.id]).length;
   const pct = list.length ? Math.round((done/list.length)*100) : 0;
   document.getElementById("pctDone").textContent = pct + "%";
   document.getElementById("bar").style.width = pct + "%";
   document.getElementById("streak").textContent = computeStreak();
+  updateSetProgress(d,type,elbowOk);
 }
 
+
 function markAll(d,type,elbowOk,value){
-  const list = getChecklist(type, elbowOk);
+  const list = getChecklist(type, elbowOk, d);
   const s = loadJson(ckKey(d), {});
-  list.forEach(i => s[i.id] = value);
+  list.forEach(i => { s[i.id] = value; const rec = recordFor(d,i); rec.done.fill(value); rec.timers = {}; saveRecord(d,i,rec); });
   saveJson(ckKey(d), s);
   renderChecklist(d, type, elbowOk);
   updateProgress(d, type, elbowOk);
 }
 
+
 function jumpToday(){
   setSelectedDate(new Date());
 }
+
 
 function applyStart(){
   const iso = document.getElementById("startPicker").value || dateKey(new Date());
@@ -536,6 +793,7 @@ function applyStart(){
   setSelectedDate(new Date());
 }
 
+
 function makeTodayB(){
   const todayISO = dateKey(new Date());
   setStart(todayISO, "B");
@@ -543,14 +801,20 @@ function makeTodayB(){
   setSelectedDate(new Date());
 }
 
+
 function showTab(which){
   document.getElementById("tabPlan").style.display = (which === "plan") ? "block" : "none";
   document.getElementById("tabDash").style.display = (which === "dash") ? "block" : "none";
+  document.getElementById("tabHist").style.display = (which === "hist") ? "block" : "none";
   document.getElementById("tabPlanBtn").classList.toggle("active", which === "plan");
   document.getElementById("tabDashBtn").classList.toggle("active", which === "dash");
+  document.getElementById("tabHistBtn").classList.toggle("active", which === "hist");
+  if(which === "hist") renderHistory();
 }
 
+
 const GIG_KEY = "physio:gigMode";
+
 
 function initGig(){
   const chk = document.getElementById("gigMode");
@@ -563,6 +827,7 @@ function initGig(){
     status.innerHTML = chk.checked ? "<b>ON</b> (freshness protected)" : "<b>OFF</b> (normal thresholds)";
   };
 }
+
 
 function loadReadinessToUI(){
   const obj = loadJson(readinessKey(currentDate), null);
@@ -581,6 +846,7 @@ function loadReadinessToUI(){
   }
 }
 
+
 function saveReadinessOnly(){
   saveJson(readinessKey(currentDate), {
     pain:Number(document.getElementById("rPain").value),
@@ -593,6 +859,7 @@ function saveReadinessOnly(){
   });
 }
 
+
 function calcReadiness(){
   const pain = Number(document.getElementById("rPain").value);
   const trend = Number(document.getElementById("rTrend").value);
@@ -600,8 +867,10 @@ function calcReadiness(){
   const fatigue = Number(document.getElementById("rFatigue").value);
   const score = pain + trend + grip + fatigue;
 
+
   const gigOn = localStorage.getItem(GIG_KEY) === "on";
   let label = "", advice = "", cls = "";
+
 
   if(gigOn){
     if(score >= 6){ label="GREEN"; advice="🟢 Gig ready — keep sessions short, stop before fatigue."; cls="greenTxt"; }
@@ -613,12 +882,16 @@ function calcReadiness(){
     else { label="RED"; advice="🔴 Protect (mobility + plan only)."; cls="redTxt"; }
   }
 
+
   document.getElementById("readinessScore").textContent = score + "/8";
   document.getElementById("readinessLabel").innerHTML = "<b class='" + cls + "'>" + label + "</b>";
   document.getElementById("readinessAdvice").textContent = advice;
 
+
   saveJson(readinessKey(currentDate), {pain,trend,grip,fatigue,score:score+"/8",label,advice});
+  buildCoachRecommendation();
 }
+
 
 function loadLoadToUI(){
   const obj = loadJson(loadKey(currentDate), null);
@@ -645,6 +918,7 @@ function loadLoadToUI(){
   }
 }
 
+
 function saveLoadOnly(){
   saveJson(loadKey(currentDate), {
     guitar:document.getElementById("ldGuitar").checked,
@@ -659,6 +933,7 @@ function saveLoadOnly(){
   });
 }
 
+
 function calcLoad(){
   const guitar = document.getElementById("ldGuitar").checked;
   const racing = document.getElementById("ldRacing").checked;
@@ -666,6 +941,7 @@ function calcLoad(){
   const pilates = document.getElementById("ldPilates").checked;
   const elbow = document.getElementById("ldElbow").checked;
   const mob = document.getElementById("ldMob").checked;
+
 
   let total = 0;
   if(guitar) total += 3;
@@ -675,14 +951,17 @@ function calcLoad(){
   if(elbow) total += 2;
   if(mob) total += 1;
 
+
   const gigOn = localStorage.getItem(GIG_KEY) === "on";
   const safe = gigOn ? 2 : 3;
   const moderate = gigOn ? 4 : 5;
+
 
   let label = "", advice = "", cls = "";
   if(total <= safe){ label="SAFE"; advice=gigOn ? "🟢 Perfect gig-week load." : "🟢 Low flare risk."; cls="greenTxt"; }
   else if(total <= moderate){ label="MODERATE"; advice=gigOn ? "🟡 Keep sessions short; avoid stacking." : "🟡 Stay controlled; avoid stacking."; cls="amberTxt"; }
   else { label="HIGH"; advice=gigOn ? "🔴 Too high for gig week — reduce volume now." : "🔴 Elevated flare risk — reduce volume."; cls="redTxt"; }
+
 
   if(gigOn && ((guitar&&racing)||(guitar&&manual)||(racing&&manual))){
     advice += "  🚨 Gig week: don’t stack two high-load arm activities.";
@@ -690,15 +969,74 @@ function calcLoad(){
     advice += "  ⚠️ Stack alert: two high-load arm activities — keep one short.";
   }
 
+
   if((guitar&&racing&&pilates)||(guitar&&manual&&pilates)||(racing&&manual&&pilates)){
     advice += "  🚨 High-risk stack: high-load arm work + Pilates.";
   }
+
 
   document.getElementById("loadScore").textContent = String(total);
   document.getElementById("loadLabel").innerHTML = "<b class='" + cls + "'>" + label + "</b>";
   document.getElementById("loadAdvice").textContent = advice;
 
+
   saveJson(loadKey(currentDate), {guitar,racing,manual,pilates,elbow,mob,score:String(total),label,advice});
+}
+
+
+
+function showWorkoutCompletion(){
+  const box=document.getElementById("workoutCompleteSummary");
+  if(!box) return;
+  const pending=workoutPending();
+  if(pending.length){box.hidden=true;return;}
+  const list=workoutList(); let sets=0, secs=0;
+  list.forEach(item=>{const r=recordFor(currentDate,item);sets+=r.done.filter(Boolean).length; const sp=dose(item); if(sp.seconds) secs += r.done.filter(Boolean).length*sp.seconds;});
+  const pain=localStorage.getItem(painKey(currentDate)) ?? "—";
+  box.innerHTML=`<h2>✅ ${getWorkoutMode()==="quick"?"Quick 15":"Workout"} Complete</h2>
+    <p><b>${list.length}</b> exercises · <b>${sets}</b> sets/sessions · <b>${formatMinutes(secs)}</b> timed work</p>
+    <p class="small">${getWorkoutMode()==="quick"?"Quick 15 records only the exercises you completed; the rest of the full plan stays outstanding.":""}</p>
+    <p class="small">Pain recorded today: <b>${pain}/10</b></p>`;
+  box.hidden=false;
+  speakPrompt("Workout complete");
+}
+function weekDates(){
+  const now=new Date(), start=new Date(now);
+  const day=(now.getDay()+6)%7; start.setDate(now.getDate()-day);
+  return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});
+}
+function renderHistory(){
+  let sessions=0,exercises=0,sets=0,timed=0,pains=[],rows=[];
+  weekDates().forEach(d=>{
+    const type=getDayType(d); if(!type) return;
+    const list=getChecklist(type,isElbowOk(d),d);
+    let dayExercises=0,daySets=0,dayTimed=0;
+    list.forEach(item=>{
+      const r=recordFor(d,item),sp=dose(item),done=r.done.filter(Boolean).length;
+      daySets+=done; if(done===r.done.length && done>0) dayExercises++;
+      if(sp.seconds) dayTimed+=done*sp.seconds;
+    });
+    exercises+=dayExercises;sets+=daySets;timed+=dayTimed;
+    const st=loadJson(ckKey(d),{}), dayPct=list.length?list.filter(i=>st[i.id]).length/list.length:0;
+    if(dayPct>=0.8) sessions++;
+    const p=localStorage.getItem(painKey(d)); if(p!==null)pains.push(Number(p));
+    rows.push(`<tr><td>${d.toLocaleDateString(undefined,{weekday:"short",day:"2-digit",month:"short"})}</td><td>${Math.round(dayPct*100)}%</td><td>${daySets}</td><td>${p===null?"—":p+"/10"}</td></tr>`);
+  });
+  document.getElementById("histSessions").textContent=sessions;
+  document.getElementById("histExercises").textContent=exercises;
+  document.getElementById("histSets").textContent=sets;
+  document.getElementById("histTime").textContent=formatMinutes(timed);
+  document.getElementById("histStreak").textContent=computeStreak();
+  document.getElementById("historyTbl").innerHTML="<tr><th>Day</th><th>Complete</th><th>Sets</th><th>Pain</th></tr>"+rows.join("");
+  if(pains.length){
+    const first=pains[0],last=pains[pains.length-1],avg=(pains.reduce((a,b)=>a+b,0)/pains.length).toFixed(1);
+    const trend=last<first?"↘ improving":last>first?"↗ increasing":"→ stable";
+    document.getElementById("histPain").textContent=`${trend} · avg ${avg}/10`;
+    document.getElementById("histPainDetail").textContent=`${pains.length} pain score${pains.length===1?"":"s"} recorded this week.`;
+  }else{
+    document.getElementById("histPain").textContent="No scores yet";
+    document.getElementById("histPainDetail").textContent="Record pain on the Plan tab to build a trend.";
+  }
 }
 
 function init(){
@@ -710,7 +1048,512 @@ function init(){
   setSelectedDate(new Date());
 }
 
+
+// Explicit prescribed set counts, independent of display wording or daily frequency.
+const prescribedSets={el_pronation_daily:2,el_hammer_daily:2,quad_press:3,quad_extension:3,quad_vmo:3,sh_band_er_2021:3,sh_lat45_2021:3,el_bicep_2021:3,ank_calfraise:3,ank_toeext:3,ank_invert:3};
+function dose(item){
+  const m=item.meta;
+  const sets=prescribedSets[item.id] ?? Number((m.match(/^(\d+)\s*(?:sets?\s*[•×]|×)/)||[])[1]||1);
+  const sessions=/3× daily/.test(m)?3:/2× daily|twice daily/.test(m)?2:1;
+  const seconds=/\d+s\s+up\s*\//i.test(m)?0:Number((m.match(/(?:Hold\s+)?(\d+)s(?:\s|$)/i)||[])[1]||(/3 min/.test(m)?180:0));
+  return {sets,sessions,seconds,total:sets*sessions};
+}
+
+function categoryFor(item){
+  const id=item.id||"", t=(item.title||"").toLowerCase();
+  if(id.startsWith("quad_")) return {label:"🦵 Quad",cls:"cat-quad"};
+  if(id.startsWith("nerve_")) return {label:"🧠 Nerve",cls:"cat-nerve"};
+  if(id.startsWith("pil_")||t.includes("pilates")) return {label:"🧘 Pilates",cls:"cat-pilates"};
+  if(id.startsWith("ank_")||t.includes("plantar")||t.includes("calf")) return {label:"🦶 Foot / Ankle",cls:"cat-foot"};
+  if(id.startsWith("mob_")||id.startsWith("neck_")) return {label:"🧘 Mobility",cls:"cat-mob"};
+  return {label:"💪 Shoulder / Elbow",cls:"cat-upper"};
+}
+function defaultRestSeconds(item){
+  const c=categoryFor(item).label, spec=dose(item);
+  if(c.includes("Quad")) return 90;
+  if(spec.sets>=3 && !spec.seconds) return 60;
+  if(spec.seconds) return 15;
+  return 45;
+}
+
+const MODE_KEY="physio:workoutMode";
+const QUICK_FOCUS_KEY="physio:quickFocus";
+
+function getWorkoutMode(){ return localStorage.getItem(MODE_KEY) || "full"; }
+function getQuickFocus(){ return localStorage.getItem(QUICK_FOCUS_KEY) || "general"; }
+
+function setWorkoutMode(mode){
+  localStorage.setItem(MODE_KEY,mode);
+  document.getElementById("modeFull").classList.toggle("active",mode==="full");
+  document.getElementById("modeQuick").classList.toggle("active",mode==="quick");
+  document.getElementById("quickOptions").hidden=mode!=="quick";
+  document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(getQuickFocus()) : "Full workout";
+  guided=null; guidedDate=null;
+  renderWorkout();
+}
+
+function setQuickFocus(focus){
+  localStorage.setItem(QUICK_FOCUS_KEY,focus);
+  document.querySelectorAll(".focusbtn").forEach(b=>b.classList.toggle("active",b.dataset.focus===focus));
+  document.getElementById("modeSummary").textContent="Quick 15 · "+quickFocusLabel(focus);
+  guided=null; guidedDate=null;
+  renderWorkout();
+}
+
+function quickFocusLabel(focus){
+  return ({general:"General",neck:"Neck",shoulder:"Shoulders",foot:"Foot / ankle",quad:"Quads",elbow:"Elbow"})[focus] || "General";
+}
+
+// Quick 15 uses only exercises already present in the prescribed plan.
+// Elbow work is always included. Focus lists are ordered by priority.
+const QUICK_IDS={
+  general:["el_pronation_daily","el_hammer_daily","neck_sideflex","sh_tl","ank_pf","quad_vmo","mob_cat"],
+  neck:["el_pronation_daily","el_hammer_daily","neck_sideflex","neck_handgrab","mob_ttn","mob_armopen","sh_tl"],
+  shoulder:["el_pronation_daily","el_hammer_daily","sh_tl","mob_armopen","mob_ttn","sh_er","sh_foam"],
+  foot:["el_pronation_daily","el_hammer_daily","ank_pf","ank_ball","ank_ham","ank_calfraise","ank_invert"],
+  quad:["el_pronation_daily","el_hammer_daily","quad_vmo","quad_press","quad_extension","ank_ham"],
+  elbow:["el_pronation_daily","el_hammer_daily","sh_tl","neck_sideflex","mob_armopen"]
+};
+
+// Exercises where recording external load/resistance is useful.
+// type "kg" = numeric weight; type "text" = free-form resistance such as band colour.
+const LOAD_TRACKING={
+  el_hammer_daily:{label:"Weight",type:"kg",unit:"kg"},
+  quad_press:{label:"Weight",type:"kg",unit:"kg"},
+  quad_extension:{label:"Weight",type:"kg",unit:"kg"},
+  sh_er:{label:"Weight",type:"kg",unit:"kg"},
+  el_bicep_2021:{label:"Weight",type:"kg",unit:"kg"},
+  ank_toeext:{label:"Ankle weight",type:"kg",unit:"kg"},
+  el_pronation_daily:{label:"Band / load",type:"text",unit:""},
+  sh_band_er_2021:{label:"Band / load",type:"text",unit:""},
+  ank_invert:{label:"Band / load",type:"text",unit:""}
+};
+function loadConfig(item){return LOAD_TRACKING[item?.id]||null;}
+
+function previousLoadFor(d,item,setIndex){
+  const cfg=loadConfig(item); if(!cfg) return "";
+  const here=parseISO(dateKey(d));
+  for(let offset=1;offset<=60;offset++){
+    const p=new Date(here); p.setDate(here.getDate()-offset);
+    const raw=loadJson(trackKey(p,item),null);
+    if(raw && Array.isArray(raw.loads)){
+      const val=raw.loads[setIndex] ?? raw.loads.find(v=>v!==""&&v!==null&&v!==undefined);
+      if(val!==""&&val!==null&&val!==undefined) return val;
+    }
+  }
+  return "";
+}
+
+function coachKey(d){return "physio:coachIssue:"+dateKey(d);}
+function getCoachIssue(){
+  return localStorage.getItem(coachKey(currentDate)) || getQuickFocus() || "general";
+}
+function setCoachIssue(issue){
+  localStorage.setItem(coachKey(currentDate),issue);
+  localStorage.setItem(QUICK_FOCUS_KEY,issue);
+  const qs=document.getElementById("coachIssue"); if(qs) qs.value=issue;
+  document.querySelectorAll(".focusbtn").forEach(b=>b.classList.toggle("active",b.dataset.focus===issue));
+  buildCoachRecommendation();
+}
+
+function recentPainTrend(){
+  const vals=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(currentDate); d.setDate(currentDate.getDate()-i);
+    const p=localStorage.getItem(painKey(d));
+    if(p!==null) vals.push({d,p:Number(p)});
+  }
+  if(vals.length<2) return {dir:"unknown",first:null,last:null,avg:vals.length?vals[0].p:null};
+  const first=vals[0].p,last=vals[vals.length-1].p;
+  return {dir:last<first?"improving":last>first?"worsening":"stable",first,last,avg:vals.reduce((a,b)=>a+b.p,0)/vals.length};
+}
+
+function currentReadinessScore(){
+  const obj=loadJson(readinessKey(currentDate),null);
+  if(!obj) return null;
+  const raw=String(obj.score||"").split("/")[0];
+  const n=Number(raw); return Number.isFinite(n)?n:null;
+}
+
+function buildCoachRecommendation(){
+  const issue=getCoachIssue();
+  const p=Number(localStorage.getItem(painKey(currentDate)) ?? 0);
+  const ready=currentReadinessScore();
+  const trend=recentPainTrend();
+  let mode="full", reason=[];
+  if(p>=4){mode="quick";reason.push(`pain ${p}/10 today`);}
+  if(ready!==null && ready<=5){mode="quick";reason.push(`readiness ${ready}/8`);}
+  if(trend.dir==="worsening"){mode="quick";reason.push("recent pain trend is worsening");}
+  if(!reason.length) reason.push("today’s saved pain/readiness do not suggest a reduced session");
+
+  const label=quickFocusLabel(issue);
+  const box=document.getElementById("coachRecommendation"); if(!box) return;
+  const recTitle=mode==="quick" ? `Quick 15 · ${label}` : "Full workout";
+  const detail=mode==="quick"
+    ? `Prioritise ${label.toLowerCase()} while keeping the daily elbow exercises.`
+    : `Use the full prescribed session. You can still switch to Quick 15 if time is tight.`;
+  box.innerHTML=`<strong>${recTitle}</strong>
+    <p class="small">${detail}</p>
+    <p class="small"><b>Why:</b> ${reason.join("; ")}${trend.avg!==null?` · 7-day recorded pain avg ${trend.avg.toFixed(1)}/10`:""}</p>
+    <div class="coachactions">
+      <button class="btn" onclick="applyCoachRecommendation('${mode}','${issue}')">Use this plan</button>
+      <button class="btn ghost" onclick="setWorkoutMode('${mode==="quick"?"full":"quick"}')">${mode==="quick"?"Choose full workout":"Choose Quick 15 instead"}</button>
+    </div>`;
+}
+function applyCoachRecommendation(mode,issue){
+  if(mode==="quick"){
+    setQuickFocus(issue);
+    setWorkoutMode("quick");
+  }else{
+    setWorkoutMode("full");
+  }
+  masterStartWorkout();
+}
+
+
+function quickWorkoutList(){
+  const full=getChecklist(getDayType(currentDate),isElbowOk(currentDate),currentDate);
+  const map=new Map(full.map(i=>[i.id,i]));
+  const ids=QUICK_IDS[getQuickFocus()]||QUICK_IDS.general;
+  return ids.map(id=>map.get(id)).filter(Boolean);
+}
+
+function speakPrompt(msg){
+  if(localStorage.getItem("physio:voicePrompts")!=="1" || !("speechSynthesis" in window)) return;
+  try{speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(msg));}catch(e){}
+}
+function setVoicePrompts(enabled){
+  localStorage.setItem("physio:voicePrompts",enabled?"1":"0");
+  if(enabled) speakPrompt("Voice prompts on");
+}
+function masterStartWorkout(){
+  showTab("plan");
+  document.getElementById("workout").scrollIntoView({behavior:"smooth",block:"start"});
+  const pending=workoutPending();
+  if(!guided?.id && pending.length){chooseWorkoutItem(pending[0]);workoutSave();renderWorkout();}
+  if(guided?.id) speakPrompt("Starting " + document.getElementById("workoutTitle").textContent);
+}
+function updateHeroProgress(){
+  if(!guided) return;
+  const all=workoutList(), pending=workoutPending();
+  const done=Math.max(0,all.length-pending.length);
+  const el=document.getElementById("heroProgress");
+  if(el) el.textContent=`${done}/${all.length}`;
+}
+function formatMinutes(sec){ return sec<60 ? `${sec}s` : `${Math.round(sec/60)}m`; }
+
+function trackKey(d,item){return 'physio:tracker:v1:'+dateKey(d)+':'+item.id;}
+function recordFor(d,item){
+  const n=dose(item).total, complete=!!loadJson(ckKey(d),{})[item.id];
+  const r=loadJson(trackKey(d,item),null);
+  if(r && Array.isArray(r.done) && r.done.length===n){
+    r.values ||= [];
+    r.loads ||= Array(n).fill("");
+    while(r.loads.length<n) r.loads.push("");
+    r.timers ||= {};
+    return r;
+  }
+  return {done:Array(n).fill(complete),values:[],loads:Array(n).fill(""),timers:{}};
+}
+function saveRecord(d,item,r){saveJson(trackKey(d,item),r);}
+function updateSetProgress(d,type,ok){
+  let done=0,total=0;
+  getChecklist(type,ok,d).forEach(i=>{const r=recordFor(d,i); total+=r.done.length;done+=r.done.filter(Boolean).length;});
+  document.getElementById('setProgress').textContent=`Sets / sessions: ${done} of ${total} (${total?Math.round(100*done/total):0}%)`;
+}
+function attachTracker(row,body,cb,item,d,type){
+  const spec=dose(item); let r=recordFor(d,item);
+  const panel=document.createElement('div');panel.className='track';body.appendChild(panel);
+  function persist(){saveRecord(d,item,r);const s=loadJson(ckKey(d),{});s[item.id]=r.done.every(Boolean);saveJson(ckKey(d),s);cb.checked=s[item.id];row.classList.toggle('finished',cb.checked);updateProgress(d,type,isElbowOk(d));}
+  for(let session=0;session<spec.sessions;session++){
+    const line=document.createElement('div');line.className='row';panel.appendChild(line);
+    const name=document.createElement('span');name.className='small';name.textContent=spec.sessions>1?`Session ${session+1}`:'Sets';line.appendChild(name);
+    for(let set=0;set<spec.sets;set++){
+      const ix=session*spec.sets+set;
+      const b=document.createElement('button');b.className='btn ghost';
+      function paint(){b.textContent=`Set ${set+1}${r.done[ix]?' ✓':''}`;b.classList.toggle('setdone',r.done[ix]);b.setAttribute('aria-pressed',String(r.done[ix]));}
+      paint();b.onclick=()=>{r=recordFor(d,item);r.done[ix]=!r.done[ix];persist();paint();};line.appendChild(b);
+      const label=document.createElement('label');label.textContent=spec.seconds?'Seconds held ': 'Reps done ';
+      const input=document.createElement('input');input.type='number';input.min='0';input.max='9999';input.step='1';input.value=r.values[ix]??'';
+      input.setAttribute('aria-label',`${item.title}, session ${session+1}, set ${set+1}, ${spec.seconds?'seconds held':'reps done'}`);
+      input.oninput=()=>{if(!input.checkValidity())return;r=recordFor(d,item);r.values[ix]=input.value;if(!spec.seconds){r.repValues ||= [];r.repValues[ix]=input.value;}saveRecord(d,item,r);};input.onchange=input.oninput;label.appendChild(input);line.appendChild(label);
+
+      const cfg=loadConfig(item);
+      if(cfg){
+        const loadLabel=document.createElement('label');loadLabel.className='loadrow';loadLabel.textContent=cfg.label+' ';
+        const load=document.createElement('input');load.type=cfg.type==='kg'?'number':'text';
+        if(cfg.type==='kg'){load.min='0';load.max='999';load.step='0.5';}
+        r=recordFor(d,item);load.value=r.loads?.[ix]??'';
+        const prev=previousLoadFor(d,item,ix);
+        if(prev!=='' && load.value==='') load.placeholder=String(prev);
+        load.setAttribute('aria-label',`${item.title}, session ${session+1}, set ${set+1}, ${cfg.label}`);
+        load.oninput=()=>{const rec=recordFor(d,item);rec.loads ||= [];rec.loads[ix]=load.value;saveRecord(d,item,rec);};
+        loadLabel.appendChild(load);
+        if(cfg.unit){const unit=document.createElement('span');unit.className='small';unit.textContent=cfg.unit;loadLabel.appendChild(unit);}
+        if(prev!==''){const prevEl=document.createElement('span');prevEl.className='prevload';prevEl.textContent=`Previous: ${prev}${cfg.unit?' '+cfg.unit:''}`;loadLabel.appendChild(prevEl);}
+        line.appendChild(loadLabel);
+      }
+    }
+  }
+  cb.onchange=()=>{r=recordFor(d,item);r.done.fill(cb.checked);persist();renderChecklist(d,type,isElbowOk(d));};
+  row.classList.toggle('finished',cb.checked);
+  (spec.seconds?['Exercise','Rest']:['Rest']).forEach(kind=>{
+    const line=document.createElement('div');line.className='row';panel.appendChild(line);
+    const label=document.createElement('label');label.textContent=kind+' timer (seconds) ';
+    const input=document.createElement('input');input.type='number';input.min='1';input.max='86400';input.step='1';
+    r.timers ||= {}; let timer=r.timers[kind] ||= {remaining:(kind==='Rest'?60:spec.seconds||60)*1000,end:null};
+    function saveTimer(){const latest=recordFor(d,item);latest.timers ||= {};latest.timers[kind]=timer;saveRecord(d,item,latest);}
+    input.value=Math.ceil(timer.remaining/1000)||60;label.appendChild(input);line.appendChild(label);
+    const output=document.createElement('span');output.className='timer';line.appendChild(output);
+    const start=document.createElement('button');start.className='btn ghost';line.appendChild(start);
+    function remain(){return timer.end?Math.max(0,timer.end-Date.now()):timer.remaining;}
+    function paint(){const sec=Math.ceil(remain()/1000);output.textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}${sec===0?' • Finished':''}`;start.textContent=timer.end?'Pause':'Start';input.disabled=!!timer.end;}
+    start.onclick=()=>{if(timer.end){timer.remaining=remain();timer.end=null;}else {if(!input.checkValidity()){input.reportValidity();return;}if(timer.remaining<=0)timer.remaining=Number(input.value)*1000;timer.end=Date.now()+timer.remaining;}saveTimer();paint();};
+    input.onchange=()=>{if(input.checkValidity()){timer.remaining=Number(input.value)*1000;timer.end=null;saveTimer();paint();}};
+    const reset=document.createElement('button');reset.className='btn ghost';reset.textContent='Reset timer';reset.onclick=()=>{if(!input.checkValidity())return;timer.end=null;timer.remaining=Number(input.value)*1000;saveTimer();paint();};line.appendChild(reset);
+    if(kind==='Rest') [30,60,90].forEach(sec=>{const b=document.createElement('button');b.className='btn ghost';b.textContent=sec+'s';b.onclick=()=>{input.value=sec;timer.end=null;timer.remaining=sec*1000;saveTimer();paint();};line.appendChild(b);});
+    paint();const interval=setInterval(()=>{if(!row.isConnected){clearInterval(interval);return;}if(timer.end && remain()===0){timer.end=null;timer.remaining=0;saveTimer();playTimerSound();}paint();},250);
+  });
+}
+// Keep the existing storage keys. Report storage failures rather than silently losing progress.
+saveJson = function(key,obj){try{localStorage.setItem(key,JSON.stringify(obj));document.getElementById('saveStatus').textContent='Saved on this browser.';}catch(e){document.getElementById('saveStatus').textContent='Progress could not be saved. Browser storage may be full or blocked.';}};
+
+let guided=null, guidedDate=null;
+const workoutKey=()=> 'physio:guided:v1:'+dateKey(currentDate);
+function workoutSave(){saveJson(workoutKey(),guided);}
+function workoutList(){const base=getWorkoutMode()==='quick'?quickWorkoutList():getChecklist(getDayType(currentDate),isElbowOk(currentDate),currentDate);return base.filter(i=>dose(i).sessions>guided.session);}
+function workoutPending(){return workoutList().filter(i=>{const spec=dose(i),r=recordFor(currentDate,i);return !r.done.slice(guided.session*spec.sets,(guided.session+1)*spec.sets).every(Boolean);});}
+function guidedRemaining(){return guided.end?Math.max(0,guided.end-Date.now()):guided.remaining;}
+function timerRepCount(item){
+ const m=item?.meta||'';
+ const match=m.match(/(?:×|•)\s*(\d+)\s*(?:reps?|each)/)||m.match(/^(\d+)\s*(?:reps?|each)/)||m.match(/×\s*(\d+)\s*each/);
+ return Number(match?.[1]||1);
+}
+function chooseWorkoutItem(item){guided.id=item?.id||null;guided.timerVersion=2;guided.timed=!!(item&&dose(item).seconds);guided.duration=item?dose(item).seconds:0;guided.restSeconds=item?defaultRestSeconds(item):30;guided.reps=timerRepCount(item);guided.sets=item?dose(item).sets:1;guided.cycle=0;guided.flowDone=false;guided.remaining=(guided.timed?guided.duration:guided.restSeconds)*1000;guided.end=null;guided.mode=guided.timed?'exercise':'rest';guided.paused=false;guided.wasRunning=false;}
+function advanceWorkoutPhase(){
+ playTimerSound();
+ if(!guided.timed){guided.end=null;guided.remaining=0;workoutSave();return;}
+ if(guided.mode==='rest'){guided.mode='exercise';guided.remaining=guided.duration*1000;speakPrompt('Next work interval');}
+ else if(guided.cycle+1>=guided.reps*guided.sets){guided.flowDone=true;guided.end=null;guided.remaining=0;workoutSave();return;}
+ else{guided.cycle++;guided.mode='rest';guided.remaining=guided.restSeconds*1000;speakPrompt('Rest');}
+ guided.end=Date.now()+guided.remaining;workoutSave();
+}
+function renderWorkout(){
+ if(guidedDate!==dateKey(currentDate)){
+  if(guided&&guided.end){guided.remaining=guided.mode==='stopwatch'?Date.now()-guided.end:guidedRemaining();guided.end=null;guided.paused=true;guided.wasRunning=true;saveJson('physio:guided:v1:'+guidedDate,guided);}
+  guidedDate=dateKey(currentDate);guided=loadJson(workoutKey(),null)||{session:0,id:null,remaining:0,end:null,paused:false,undo:null};
+ }
+ const pending=workoutPending();let item=workoutList().find(i=>i.id===guided.id);
+ if(!item){item=pending[0];chooseWorkoutItem(item);workoutSave();}
+ if(guided.timerVersion!==2){chooseWorkoutItem(item);workoutSave();}
+ const all=workoutList(), next=pending.find(i=>i.id!==item?.id);
+ document.getElementById('workoutSession').value=guided.session;
+ document.getElementById('workoutCount').textContent=`${fmtDate(currentDate)} · ${getWorkoutMode()==='quick'?'Quick 15':'Full workout'} · Session ${guided.session+1} · ${all.length-pending.length} of ${all.length} exercises complete`;
+ document.getElementById('workoutTitle').textContent=item?item.title:'Session complete ✓';
+ document.getElementById('workoutDose').textContent=item?item.meta:'All exercises due in this session are recorded. Choose another session when it is due.';
+ const doseEl=document.getElementById('workoutDose');
+ doseEl.querySelectorAll?.('.cat,.demo')?.forEach?.(el=>el.remove?.());
+ if(item){
+  const cat=categoryFor(item), span=document.createElement('span');span.className='cat '+cat.cls;span.textContent=cat.label;doseEl.appendChild(document.createElement('br'));doseEl.appendChild(span);
+  if(item.video){const a=document.createElement('a');a.className='btn ghost demo';a.href=item.video;a.target='_blank';a.rel='noopener noreferrer';a.textContent='▶ Watch Demo';doseEl.appendChild(a);}
+ }
+ document.getElementById('workoutNext').textContent=next?next.title:(item?'Last exercise in this session':'Nothing remaining');
+ document.getElementById('workoutNextDose').textContent=next?next.meta:'';
+ document.getElementById('workoutSeconds').value=guided.duration||30;
+ document.getElementById('workoutRestSeconds').value=guided.restSeconds;
+ document.getElementById('workoutReps').value=guided.reps;
+ document.getElementById('workoutSets').value=guided.sets;
+ document.getElementById('workoutTimerHint').textContent=!item?'':guided.timed?'Hold time detected from the prescription. Work and rest alternate automatically. Adjust reps for both sides if needed; press Complete exercise to advance.':'Rep-based exercise: perform your reps, record the number completed and tick each set. Start the rest timer manually when needed.';
+ ['workoutWorkLabel','workoutRepsLabel','workoutSetsLabel'].forEach(id=>document.getElementById(id).hidden=!guided.timed);
+ document.getElementById('workoutRestNow').hidden=!guided.timed;
+ renderGuidedSets(item);
+ document.getElementById('workoutUndo').disabled=!guided.undo;
+ updateHeroProgress();
+ showWorkoutCompletion();
+ paintWorkoutClock();
+}
+function paintWorkoutClock(){
+ if(!guided)return;
+ let ms=guided.mode==='stopwatch'?(guided.end?Date.now()-guided.end:guided.remaining):guidedRemaining();
+ if(guided.end&&guided.mode!=='stopwatch'&&ms===0){advanceWorkoutPhase();ms=guidedRemaining();}
+ const sec=Math.max(0,Math.ceil(ms/1000));
+ if(guided.end && sec===10 && !guided._tenSpoken){guided._tenSpoken=true;speakPrompt("10 seconds");}
+ if(sec>10) guided._tenSpoken=false;
+ document.getElementById('workoutClock').textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
+ document.getElementById('workoutStart').textContent=guided.mode==='rest'?'Start rest timer':'Start timer';
+ document.getElementById('workoutStart').disabled=!guided.id||!!guided.end||guided.paused||guided.flowDone;
+ document.getElementById('workoutPhase').textContent=!guided.timed?(guided.end?'Resting':guided.remaining===0?'Rest finished — start again when needed.':'Rest timer · start manually'):guided.flowDone?'Timed sequence finished — press Complete exercise when ready.':`${guided.mode==='rest'?'Rest before':'Work'} · Set ${Math.floor(guided.cycle/guided.reps)+1} of ${guided.sets} · Rep ${guided.cycle%guided.reps+1} of ${guided.reps}`;
+ ['workoutRestSeconds','workoutReps','workoutSets'].forEach(id=>document.getElementById(id).disabled=!!guided.end||guided.paused);
+ document.getElementById('workoutPause').textContent=guided.paused?'Resume workout':'Pause workout';
+ document.getElementById('workoutPause').disabled=!guided.id;
+ document.getElementById('workoutComplete').disabled=!guided.id||guided.paused;
+ document.getElementById('workoutSkip').disabled=!guided.id||guided.paused;
+ document.getElementById('workoutSeconds').disabled=!!guided.end||guided.paused;
+}
+function setWorkoutSeconds(){
+ const ids=guided.timed?['workoutSeconds','workoutRestSeconds','workoutReps','workoutSets']:['workoutRestSeconds'];
+ for(const id of ids){const input=document.getElementById(id);if(!input.checkValidity()){input.reportValidity();return;}}
+ if(guided.timed)[guided.duration,guided.restSeconds,guided.reps,guided.sets]=ids.map(id=>Number(document.getElementById(id).value));
+ else guided.restSeconds=Number(document.getElementById('workoutRestSeconds').value);
+ resetWorkoutTimer();
+}
+function startWorkoutTimer(){if(!guided.id||guided.paused||guided.end||guided.flowDone)return;if(!guided.timed&&guided.remaining<=0)guided.remaining=guided.restSeconds*1000;guided.end=Date.now()+guided.remaining;workoutSave();paintWorkoutClock();}
+function pauseWorkout(){if(!guided.id)return;if(!guided.paused){guided.wasRunning=!!guided.end;guided.remaining=guided.mode==='stopwatch'?(guided.end?Date.now()-guided.end:guided.remaining):guidedRemaining();guided.end=null;guided.paused=true;}else{guided.paused=false;if(guided.wasRunning)startWorkoutTimer();}workoutSave();paintWorkoutClock();}
+function resetWorkoutTimer(){if(guided.paused)return;guided.end=null;guided.mode=guided.timed?'exercise':'rest';guided.cycle=0;guided.flowDone=false;guided.remaining=(guided.timed?guided.duration:guided.restSeconds)*1000;workoutSave();paintWorkoutClock();}
+function startWorkoutRest(){if(!guided.id||guided.paused||guided.flowDone)return;guided.mode='rest';guided.remaining=guided.restSeconds*1000;guided.end=null;startWorkoutTimer();}
+function changeWorkoutSession(value){guided.session=Number(value);guided.undo=null;chooseWorkoutItem(null);workoutSave();renderWorkout();}
+function completeWorkoutExercise(){
+ if(!guided.id||guided.paused)return;
+ const item=workoutList().find(i=>i.id===guided.id);if(!item)return;
+ const spec=dose(item),r=recordFor(currentDate,item);
+ guided.undo={id:item.id,session:guided.session,done:[...r.done]};
+ for(let n=guided.session*spec.sets;n<(guided.session+1)*spec.sets;n++)r.done[n]=true;
+ saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);
+ chooseWorkoutItem(workoutPending()[0]);workoutSave();renderCurrentDate();if(guided.id)speakPrompt('Next exercise');
+}
+function skipWorkoutExercise(){if(guided.paused)return;const pending=workoutPending(),pos=pending.findIndex(i=>i.id===guided.id);chooseWorkoutItem(pending[(pos+1)%pending.length]);workoutSave();renderWorkout();}
+function undoWorkoutExercise(){const u=guided.undo;if(!u)return;const item=workoutList().find(i=>i.id===u.id);if(!item)return;const r=recordFor(currentDate,item);r.done=u.done;saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);chooseWorkoutItem(item);guided.undo=null;workoutSave();renderCurrentDate();}
+const originalUpdateSetProgress=updateSetProgress;
+updateSetProgress=function(d,type,ok){originalUpdateSetProgress(d,type,ok);renderWorkout();};
+setInterval(paintWorkoutClock,250);
+
+function renderGuidedSets(item){
+ const box=document.getElementById('guidedSets');box.innerHTML='';if(!item)return;
+ const spec=dose(item);
+ document.getElementById('guidedSetsHeading').textContent=`Your sets · ${spec.sets} prescribed for this session`;
+ for(let n=0;n<spec.sets;n++){
+  const ix=guided.session*spec.sets+n, line=document.createElement('div');line.className='row';line.style.marginTop='10px';
+  const button=document.createElement('button');button.className='btn ghost';
+  const paint=()=>{const done=recordFor(currentDate,item).done[ix];button.textContent=`Set ${n+1}${done?' ✓':''}`;button.setAttribute('aria-pressed',String(done));button.classList.toggle('setdone',done);};paint();
+  button.onclick=()=>{const r=recordFor(currentDate,item);r.done[ix]=!r.done[ix];saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);renderChecklist(currentDate,getDayType(currentDate),isElbowOk(currentDate));updateProgress(currentDate,getDayType(currentDate),isElbowOk(currentDate));};
+  const label=document.createElement('label');label.className='small';label.textContent=`Set ${n+1} reps completed `;
+  const input=document.createElement('input');input.type='number';input.min='0';input.max='9999';input.step='1';input.style.width='80px';
+  const r=recordFor(currentDate,item);input.value=(r.repValues||[])[ix]??(!guided.timed?r.values[ix]??'':'');
+  input.setAttribute('aria-label',`${item.title}, set ${n+1}, reps completed`);
+  input.oninput=()=>{if(!input.checkValidity())return;const rec=recordFor(currentDate,item);rec.repValues ||= [];rec.repValues[ix]=input.value;if(!guided.timed)rec.values[ix]=input.value;saveRecord(currentDate,item,rec);};input.onchange=()=>{input.oninput();renderChecklist(currentDate,getDayType(currentDate),isElbowOk(currentDate));};
+  label.appendChild(input);line.appendChild(button);line.appendChild(label);
+  const cfg=loadConfig(item);
+  if(cfg){
+    const loadLabel=document.createElement('label');loadLabel.className='small';loadLabel.textContent=cfg.label+' ';
+    const load=document.createElement('input');load.type=cfg.type==='kg'?'number':'text';load.style.width='90px';
+    if(cfg.type==='kg'){load.min='0';load.max='999';load.step='0.5';}
+    const rec=recordFor(currentDate,item);load.value=rec.loads?.[ix]??'';
+    const prev=previousLoadFor(currentDate,item,ix);
+    if(prev!==''&&load.value==='')load.placeholder=String(prev);
+    load.setAttribute('aria-label',`${item.title}, set ${n+1}, ${cfg.label}`);
+    load.oninput=()=>{const rr=recordFor(currentDate,item);rr.loads ||= [];rr.loads[ix]=load.value;saveRecord(currentDate,item,rr);};
+    loadLabel.appendChild(load);
+    if(cfg.unit)loadLabel.append(' '+cfg.unit);
+    if(prev!==''){const p=document.createElement('span');p.className='prevload';p.textContent=` · previous ${prev}${cfg.unit?' '+cfg.unit:''}`;loadLabel.appendChild(p);}
+    line.appendChild(loadLabel);
+  }
+  box.appendChild(line);
+ }
+ const extras=recordFor(currentDate,item).extraSets?.[guided.session]||[];
+ extras.forEach((extra,n)=>{
+  const line=document.createElement('div');line.className='row';line.style.marginTop='10px';
+  const button=document.createElement('button');button.className='btn ghost';button.textContent=`Extra set ${spec.sets+n+1}${extra.done?' ✓':''}`;button.classList.toggle('setdone',!!extra.done);button.setAttribute('aria-pressed',String(!!extra.done));
+  button.onclick=()=>{const r=recordFor(currentDate,item);r.extraSets[guided.session][n].done=!r.extraSets[guided.session][n].done;saveRecord(currentDate,item,r);renderGuidedSets(item);};
+  const label=document.createElement('label');label.className='small';label.textContent=`Set ${spec.sets+n+1} reps completed `;
+  const input=document.createElement('input');input.type='number';input.min='0';input.max='9999';input.step='1';input.style.width='80px';input.value=extra.reps??'';
+  input.setAttribute('aria-label',`${item.title}, extra set ${spec.sets+n+1}, reps completed`);
+  input.oninput=()=>{if(!input.checkValidity())return;const r=recordFor(currentDate,item);r.extraSets[guided.session][n].reps=input.value;saveRecord(currentDate,item,r);};
+  label.appendChild(input);line.appendChild(button);line.appendChild(label);
+  const cfg=loadConfig(item);
+  if(cfg){
+    const loadLabel=document.createElement('label');loadLabel.className='small';loadLabel.textContent=cfg.label+' ';
+    const load=document.createElement('input');load.type=cfg.type==='kg'?'number':'text';load.style.width='90px';
+    if(cfg.type==='kg'){load.min='0';load.max='999';load.step='0.5';}
+    load.value=extra.load??'';
+    load.oninput=()=>{const r=recordFor(currentDate,item);r.extraSets[guided.session][n].load=load.value;saveRecord(currentDate,item,r);};
+    loadLabel.appendChild(load); if(cfg.unit)loadLabel.append(' '+cfg.unit); line.appendChild(loadLabel);
+  }
+  box.appendChild(line);
+ });
+ const add=document.createElement('button');add.className='btn ghost';add.style.marginTop='12px';add.textContent='Add extra set';
+ add.onclick=()=>{const r=recordFor(currentDate,item);r.extraSets ||= {};r.extraSets[guided.session] ||= [];r.extraSets[guided.session].push({done:false,reps:''});saveRecord(currentDate,item,r);renderGuidedSets(item);};box.appendChild(add);
+ const note=document.createElement('p');note.className='small';note.textContent=`Prescribed: ${spec.sets} set${spec.sets===1?'':'s'} per session. Extra sets are optional records; they do not change the prescription, timer sequence or daily completion target.`;box.appendChild(note);
+}
+
+let soundContext=null, wakeLock=null, awakeWanted=false, pendingBackup=null, wakeRequest=0;
+function initAppTools(){
+ document.getElementById('timerSound').checked=localStorage.getItem('physio:timerSound')==='1';
+ document.getElementById('voicePrompts').checked=localStorage.getItem('physio:voicePrompts')==='1';
+ const mode=getWorkoutMode(), focus=getQuickFocus();
+ document.getElementById("modeFull").classList.toggle("active",mode==="full");
+ document.getElementById("modeQuick").classList.toggle("active",mode==="quick");
+ document.getElementById("quickOptions").hidden=mode!=="quick";
+ document.querySelectorAll(".focusbtn").forEach(b=>b.classList.toggle("active",b.dataset.focus===focus));
+ document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(focus) : "Full workout";
+ document.addEventListener('pointerdown',()=>{if(document.getElementById('timerSound').checked)prepareSound();});
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&awakeWanted)requestScreenAwake();});
+}
+function prepareSound(){
+ try{const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;soundContext ||= new Audio();if(soundContext.state==='suspended')soundContext.resume().catch(()=>{});return soundContext;}catch(e){return null;}
+}
+function setTimerSound(enabled){localStorage.setItem('physio:timerSound',enabled?'1':'0');if(enabled)prepareSound();}
+function playTimerSound(force=false){
+ if(!force&&localStorage.getItem('physio:timerSound')!=='1')return;
+ const ctx=prepareSound();if(!ctx)return;
+ for(let n=0;n<3;n++){const osc=ctx.createOscillator(),gain=ctx.createGain(),start=ctx.currentTime+n*.3;osc.frequency.value=660;gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.12,start+.02);gain.gain.exponentialRampToValueAtTime(.001,start+.22);osc.connect(gain);gain.connect(ctx.destination);osc.start(start);osc.stop(start+.24);}
+}
+function testTimerSound(){playTimerSound(true);}
+async function setKeepAwake(enabled){
+ awakeWanted=enabled;wakeRequest++;
+ if(!enabled){const old=wakeLock;wakeLock=null;if(old)await old.release().catch(()=>{});document.getElementById('awakeStatus').textContent='Screen awake is off.';return;}
+ await requestScreenAwake();
+}
+async function requestScreenAwake(){
+ if(!awakeWanted||wakeLock||document.visibilityState!=='visible')return;
+ const version=++wakeRequest;
+ if(!('wakeLock' in navigator)){document.getElementById('awakeStatus').textContent='This browser does not support keeping the screen awake.';document.getElementById('keepAwake').checked=false;awakeWanted=false;return;}
+ try{
+  const lock=await navigator.wakeLock.request('screen');
+  if(!awakeWanted||version!==wakeRequest){await lock.release();return;}
+  wakeLock=lock;document.getElementById('awakeStatus').textContent='Screen will stay awake while this page is visible.';
+  lock.addEventListener('release',()=>{if(wakeLock!==lock)return;wakeLock=null;document.getElementById('awakeStatus').textContent=awakeWanted?'Screen awake paused by browser; it will retry when you return.':'Screen awake is off.';});
+ }catch(e){document.getElementById('awakeStatus').textContent='Screen awake could not start. Switch it off and on to retry.';}
+}
+function collectProgress(){const entries={};for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key.startsWith('physio:'))entries[key]=localStorage.getItem(key);}return {app:'physio-tracker',version:1,exportedAt:new Date().toISOString(),entries};}
+function exportProgress(){
+ try{const blob=new Blob([JSON.stringify(collectProgress(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='physio-backup-'+dateKey(new Date())+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);document.getElementById('backupStatus').textContent='Backup download requested.';}catch(e){document.getElementById('backupStatus').textContent='Could not export progress: '+e.message;}
+}
+function validateBackup(data){
+ if(!data||data.app!=='physio-tracker'||data.version!==1||!data.entries||Array.isArray(data.entries)||typeof data.entries!=='object')throw new Error('Not a supported Physio backup.');
+ const entries=Object.entries(data.entries);if(!entries.length||entries.length>20000)throw new Error('Backup is empty or too large.');
+ for(const [key,value] of entries){
+  if(!/^physio:[a-zA-Z0-9:_-]+$/.test(key)||typeof value!=='string'||value.length>1000000)throw new Error('Invalid saved entry.');
+  if(/^physio:(checks|ready|load|tracker|guided):/.test(key)){
+   const obj=JSON.parse(value);if(!obj||typeof obj!=='object'||Array.isArray(obj))throw new Error('Invalid progress data.');
+   if(key.startsWith('physio:tracker:')&&(!Array.isArray(obj.done)||!obj.done.every(v=>typeof v==='boolean')||!Array.isArray(obj.values)||!obj.timers||typeof obj.timers!=='object'))throw new Error('Invalid set data.');
+   if(key.startsWith('physio:guided:')&&(!Number.isInteger(obj.session)||obj.session<0||obj.session>2||!Number.isFinite(obj.remaining)||obj.remaining<0))throw new Error('Invalid workout data.');
+  }
+ }
+ return entries;
+}
+async function previewRestore(file){
+ pendingBackup=null;document.getElementById('confirmRestore').hidden=true;
+ if(!file)return;
+ try{if(file.size>10000000)throw new Error('Backup exceeds 10 MB.');const data=JSON.parse(await file.text());const entries=validateBackup(data);pendingBackup=entries;document.getElementById('backupStatus').textContent=`Ready to restore ${entries.length} saved entries. Matching entries in this browser will be replaced.`;document.getElementById('confirmRestore').hidden=false;}catch(e){document.getElementById('backupStatus').textContent='Cannot restore: '+e.message;}
+}
+function restoreProgress(){
+ if(!pendingBackup)return;
+ const previous=pendingBackup.map(([key])=>[key,localStorage.getItem(key)]);
+ try{
+  for(const [key,value] of pendingBackup){
+   let restored=value;
+   // A backup never resumes an old running timer automatically.
+   if(key.startsWith('physio:guided:')){const r=JSON.parse(value);r.end=null;r.paused=true;r.wasRunning=false;restored=JSON.stringify(r);}
+   if(key.startsWith('physio:tracker:')){const r=JSON.parse(value);for(const timer of Object.values(r.timers)){if(timer&&typeof timer==='object')timer.end=null;}restored=JSON.stringify(r);}
+   localStorage.setItem(key,restored);
+  }
+ }catch(e){for(const [key,value] of previous){try{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);}catch(ignored){}}document.getElementById('backupStatus').textContent='Restore failed; browser storage may be full. Keep your backup file.';return;}
+ pendingBackup=null;document.getElementById('confirmRestore').hidden=true;guided=null;guidedDate=null;init();document.getElementById('timerSound').checked=localStorage.getItem('physio:timerSound')==='1';document.getElementById('backupStatus').textContent='Backup restored. Saved timers are paused.';
+}
+
 init();
+initAppTools();
+buildCoachRecommendation();
 </script>
 </body>
 </html>
