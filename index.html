@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Physio Master Hub v6 Rehab Coach</title>
+<title>Physio Master Hub v7.1 Rehab Coach</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--blue:#2563eb;--green:#16a34a;--amber:#f59e0b;--red:#dc2626;}
 *{box-sizing:border-box}
@@ -91,11 +91,37 @@ th{background:#f9fafb;text-align:left}
 .prevload{font-size:11px;color:var(--muted)}
 .issueSelect{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff}
 
+
+:root{--shadow:0 10px 28px rgba(15,23,42,.07);--shadow2:0 18px 40px rgba(15,23,42,.10)}
+body{max-width:1100px;margin:0 auto}
+.card,.coach,.workout-hero{box-shadow:var(--shadow)}
+.workout-hero,.coach{transition:transform .18s ease,box-shadow .18s ease}
+.workout-hero:hover,.coach:hover{transform:translateY(-1px);box-shadow:var(--shadow2)}
+.btn,.modebtn,.focusbtn,.tabbtn{transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+.btn:hover,.modebtn:hover,.focusbtn:hover,.tabbtn:hover{transform:translateY(-1px)}
+.big-start{box-shadow:0 8px 20px rgba(37,99,235,.22)}
+.modepicker{background:#f8fafc;padding:6px;border-radius:14px;border:1px solid var(--border)}
+.modebtn{flex:1;min-width:150px}
+.workout-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.dangerbtn{background:transparent;color:var(--red);border:1px solid #fecaca}
+.dangerbtn:hover{background:#fef2f2}
+.exercise-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:#f8fafc;border:1px solid var(--border);font-size:11px;font-weight:800}
+#workoutTitle{letter-spacing:-.01em}
+#workoutClock{font-size:42px!important}
+.summaryHero{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.summaryHero .stat{background:linear-gradient(180deg,#fff,#f8fafc)}
+@media(min-width:700px){.summaryHero{grid-template-columns:repeat(3,1fr)}}
+
+
+.complete-confirm{margin-top:14px;padding:14px;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:14px}
+.complete-confirm .btn{background:var(--green)}
+.complete-confirm.saved{border-color:#86efac;background:#ecfdf5}
+
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>✅ Physio Master Hub v6 Rehab Coach</h1>
+  <h1>✅ Physio Master Hub v7.1 Rehab Coach</h1>
   <p class="sub">Stable build: day-by-day behaviour, start date/day type, saved progress per date, readiness, load planner, gig mode, and optional elbow add-ons.</p>
   <div class="nav">
     <button class="tabbtn active" id="tabPlanBtn" onclick="showTab('plan')">Plan</button>
@@ -156,6 +182,7 @@ th{background:#f9fafb;text-align:left}
 
   <div class="row" style="margin-top:12px">
     <button class="btn big-start" id="masterStartWorkout" onclick="masterStartWorkout()">Start / Continue Workout</button>
+    <button class="btn dangerbtn" onclick="resetCurrentWorkout()">Reset workout</button>
     <div class="pill">Session progress: <b id="heroProgress">—</b></div>
     <div class="pill" id="modeSummary">Full workout</div>
   </div>
@@ -179,8 +206,14 @@ th{background:#f9fafb;text-align:left}
     <div id="guidedSets"></div>
     <p id="workoutPhase" role="status" style="font-weight:700"></p>
     <p class="small" id="workoutTimerHint"></p>
-    <div class="row"><button class="btn ghost" id="workoutStart" onclick="startWorkoutTimer()">Start timer</button><button class="btn ghost" id="workoutPause" onclick="pauseWorkout()">Pause workout</button><button class="btn ghost" onclick="resetWorkoutTimer()">Reset sequence</button><button class="btn ghost" id="workoutRestNow" onclick="startWorkoutRest()">Rest now</button></div>
+    <div class="row"><button class="btn ghost" id="workoutStart" onclick="startWorkoutTimer()">Start timer</button><button class="btn ghost" id="workoutPause" onclick="pauseWorkout()">Pause workout</button><button class="btn ghost" onclick="resetWorkoutTimer()">Reset timer sequence</button><button class="btn ghost" id="workoutRestNow" onclick="startWorkoutRest()">Rest now</button><button class="btn dangerbtn" onclick="resetCurrentWorkout()">Reset workout from scratch</button></div>
     <div class="row" style="margin-top:16px"><button class="btn" id="workoutComplete" onclick="completeWorkoutExercise()">Complete exercise → Next</button><button class="btn ghost" id="workoutSkip" onclick="skipWorkoutExercise()">Skip for now</button><button class="btn ghost" id="workoutUndo" onclick="undoWorkoutExercise()">Undo last completion</button></div>
+    <div class="complete-confirm" id="finishConfirm">
+      <div><b>Finished this session?</b></div>
+      <p class="small">Press Complete Session when you are done. This saves a confirmed completion record for today’s selected session and workout mode.</p>
+      <button class="btn" id="confirmSessionBtn" onclick="confirmSessionComplete()">✅ Complete Session</button>
+      <span class="small" id="confirmSessionStatus"></span>
+    </div>
   </div>
   <div style="background:#eef2ff;border-radius:12px;padding:14px;margin-top:18px"><div class="small">UP NEXT · PREPARE</div><b id="workoutNext"></b><p class="item-meta" id="workoutNextDose"></p></div>
   <div id="workoutCompleteSummary" class="complete-card" hidden></div>
@@ -438,7 +471,7 @@ th{background:#f9fafb;text-align:left}
   </div>
 </div>
 
-<div class="footer">v6 • Rehab Coach + load tracking • Updated June & August 2026 plans</div>
+<div class="footer">v7.1 • Rehab Coach • Quick 15 / Full • Confirm completion • Load tracking</div>
 
 
 <script>
@@ -994,7 +1027,11 @@ function showWorkoutCompletion(){
   list.forEach(item=>{const r=recordFor(currentDate,item);sets+=r.done.filter(Boolean).length; const sp=dose(item); if(sp.seconds) secs += r.done.filter(Boolean).length*sp.seconds;});
   const pain=localStorage.getItem(painKey(currentDate)) ?? "—";
   box.innerHTML=`<h2>✅ ${getWorkoutMode()==="quick"?"Quick 15":"Workout"} Complete</h2>
-    <p><b>${list.length}</b> exercises · <b>${sets}</b> sets/sessions · <b>${formatMinutes(secs)}</b> timed work</p>
+    <div class="summaryHero">
+      <div class="stat"><span class="small">Exercises</span><b>${list.length}</b></div>
+      <div class="stat"><span class="small">Sets / sessions</span><b>${sets}</b></div>
+      <div class="stat"><span class="small">Timed work</span><b>${formatMinutes(secs)}</b></div>
+    </div>
     <p class="small">${getWorkoutMode()==="quick"?"Quick 15 records only the exercises you completed; the rest of the full plan stays outstanding.":""}</p>
     <p class="small">Pain recorded today: <b>${pain}/10</b></p>`;
   box.hidden=false;
@@ -1018,16 +1055,19 @@ function renderHistory(){
     });
     exercises+=dayExercises;sets+=daySets;timed+=dayTimed;
     const st=loadJson(ckKey(d),{}), dayPct=list.length?list.filter(i=>st[i.id]).length/list.length:0;
-    if(dayPct>=0.8) sessions++;
+    const confirmState=getSessionConfirmState(d);
+    const confirmedCount=Object.values(confirmState).filter(v=>v&&v.confirmed).length;
+    if(confirmedCount>0) sessions+=confirmedCount;
+    else if(dayPct>=0.8) sessions++;
     const p=localStorage.getItem(painKey(d)); if(p!==null)pains.push(Number(p));
-    rows.push(`<tr><td>${d.toLocaleDateString(undefined,{weekday:"short",day:"2-digit",month:"short"})}</td><td>${Math.round(dayPct*100)}%</td><td>${daySets}</td><td>${p===null?"—":p+"/10"}</td></tr>`);
+    rows.push(`<tr><td>${d.toLocaleDateString(undefined,{weekday:"short",day:"2-digit",month:"short"})}</td><td>${Math.round(dayPct*100)}%</td><td>${daySets}</td><td>${confirmedCount?confirmedCount+" ✓":"—"}</td><td>${p===null?"—":p+"/10"}</td></tr>`);
   });
   document.getElementById("histSessions").textContent=sessions;
   document.getElementById("histExercises").textContent=exercises;
   document.getElementById("histSets").textContent=sets;
   document.getElementById("histTime").textContent=formatMinutes(timed);
   document.getElementById("histStreak").textContent=computeStreak();
-  document.getElementById("historyTbl").innerHTML="<tr><th>Day</th><th>Complete</th><th>Sets</th><th>Pain</th></tr>"+rows.join("");
+  document.getElementById("historyTbl").innerHTML="<tr><th>Day</th><th>Complete</th><th>Sets</th><th>Confirmed sessions</th><th>Pain</th></tr>"+rows.join("");
   if(pains.length){
     const first=pains[0],last=pains[pains.length-1],avg=(pains.reduce((a,b)=>a+b,0)/pains.length).toFixed(1);
     const trend=last<first?"↘ improving":last>first?"↗ increasing":"→ stable";
@@ -1197,7 +1237,7 @@ function buildCoachRecommendation(){
     <p class="small"><b>Why:</b> ${reason.join("; ")}${trend.avg!==null?` · 7-day recorded pain avg ${trend.avg.toFixed(1)}/10`:""}</p>
     <div class="coachactions">
       <button class="btn" onclick="applyCoachRecommendation('${mode}','${issue}')">Use this plan</button>
-      <button class="btn ghost" onclick="setWorkoutMode('${mode==="quick"?"full":"quick"}')">${mode==="quick"?"Choose full workout":"Choose Quick 15 instead"}</button>
+      <button class="btn ghost" onclick="chooseAlternateCoachPlan('${mode}','${issue}')">${mode==="quick"?"Choose full workout":"Choose Quick 15 instead"}</button>
     </div>`;
 }
 function applyCoachRecommendation(mode,issue){
@@ -1209,6 +1249,47 @@ function applyCoachRecommendation(mode,issue){
   }
   masterStartWorkout();
 }
+
+function chooseAlternateCoachPlan(recommendedMode,issue){
+  if(recommendedMode==="quick"){
+    setWorkoutMode("full");
+  }else{
+    setQuickFocus(issue);
+    setWorkoutMode("quick");
+  }
+  buildCoachRecommendation();
+  document.getElementById("workout").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function resetCurrentWorkout(){
+  const mode=getWorkoutMode();
+  const list=(mode==="quick"?quickWorkoutList():getChecklist(getDayType(currentDate),isElbowOk(currentDate),currentDate));
+  const checks=loadJson(ckKey(currentDate),{});
+  list.forEach(item=>{
+    const r=recordFor(currentDate,item);
+    r.done=Array(r.done.length).fill(false);
+    r.values=[];
+    r.repValues=[];
+    r.loads=Array(r.done.length).fill("");
+    r.extraSets={};
+    if(r.timers && typeof r.timers==="object"){
+      Object.values(r.timers).forEach(t=>{if(t&&typeof t==="object"){t.end=null;t.remaining=0;}});
+    }
+    saveRecord(currentDate,item,r);
+    checks[item.id]=false;
+  });
+  saveJson(ckKey(currentDate),checks);
+  localStorage.removeItem(workoutKey());
+  const confirmations=getSessionConfirmState();
+  delete confirmations[sessionConfirmId()];
+  saveJson(sessionConfirmKey(),confirmations);
+  guided=null;guidedDate=null;
+  renderCurrentDate();
+  const box=document.getElementById("workoutCompleteSummary");if(box)box.hidden=true;
+  document.getElementById("backupStatus").textContent=`${mode==="quick"?"Quick 15":"Full workout"} reset for ${fmtDate(currentDate)}.`;
+  speakPrompt("Workout reset");
+}
+
 
 
 function quickWorkoutList(){
@@ -1320,6 +1401,48 @@ saveJson = function(key,obj){try{localStorage.setItem(key,JSON.stringify(obj));d
 
 let guided=null, guidedDate=null;
 const workoutKey=()=> 'physio:guided:v1:'+dateKey(currentDate);
+function sessionConfirmKey(d=currentDate){return 'physio:sessionComplete:v1:'+dateKey(d);}
+function sessionConfirmId(){
+  const mode=getWorkoutMode();
+  const focus=mode==='quick'?getQuickFocus():'full';
+  const session=(guided && Number.isInteger(guided.session))?guided.session:0;
+  return mode+':session'+session+':'+focus;
+}
+function getSessionConfirmState(d=currentDate){return loadJson(sessionConfirmKey(d),{});}
+function confirmSessionComplete(){
+  const state=getSessionConfirmState();
+  const id=sessionConfirmId();
+  state[id]={
+    confirmed:true,
+    confirmedAt:new Date().toISOString(),
+    mode:getWorkoutMode(),
+    focus:getWorkoutMode()==='quick'?getQuickFocus():'full',
+    session:(guided && Number.isInteger(guided.session))?guided.session:0
+  };
+  saveJson(sessionConfirmKey(),state);
+  const status=document.getElementById('confirmSessionStatus');
+  if(status) status.textContent=' Saved ✓';
+  const box=document.getElementById('finishConfirm');
+  if(box) box.classList.add('saved');
+  renderHistory();
+}
+function renderSessionConfirm(){
+  const state=getSessionConfirmState();
+  const id=sessionConfirmId();
+  const rec=state[id];
+  const status=document.getElementById('confirmSessionStatus');
+  const box=document.getElementById('finishConfirm');
+  if(!status||!box)return;
+  if(rec&&rec.confirmed){
+    const t=new Date(rec.confirmedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    status.textContent=' Saved ✓ '+t;
+    box.classList.add('saved');
+  }else{
+    status.textContent='';
+    box.classList.remove('saved');
+  }
+}
+
 function workoutSave(){saveJson(workoutKey(),guided);}
 function workoutList(){const base=getWorkoutMode()==='quick'?quickWorkoutList():getChecklist(getDayType(currentDate),isElbowOk(currentDate),currentDate);return base.filter(i=>dose(i).sessions>guided.session);}
 function workoutPending(){return workoutList().filter(i=>{const spec=dose(i),r=recordFor(currentDate,i);return !r.done.slice(guided.session*spec.sets,(guided.session+1)*spec.sets).every(Boolean);});}
@@ -1370,6 +1493,7 @@ function renderWorkout(){
  document.getElementById('workoutUndo').disabled=!guided.undo;
  updateHeroProgress();
  showWorkoutCompletion();
+ renderSessionConfirm();
  paintWorkoutClock();
 }
 function paintWorkoutClock(){
@@ -1523,7 +1647,7 @@ function validateBackup(data){
  const entries=Object.entries(data.entries);if(!entries.length||entries.length>20000)throw new Error('Backup is empty or too large.');
  for(const [key,value] of entries){
   if(!/^physio:[a-zA-Z0-9:_-]+$/.test(key)||typeof value!=='string'||value.length>1000000)throw new Error('Invalid saved entry.');
-  if(/^physio:(checks|ready|load|tracker|guided):/.test(key)){
+  if(/^physio:(checks|ready|load|tracker|guided|sessionComplete):/.test(key)){
    const obj=JSON.parse(value);if(!obj||typeof obj!=='object'||Array.isArray(obj))throw new Error('Invalid progress data.');
    if(key.startsWith('physio:tracker:')&&(!Array.isArray(obj.done)||!obj.done.every(v=>typeof v==='boolean')||!Array.isArray(obj.values)||!obj.timers||typeof obj.timers!=='object'))throw new Error('Invalid set data.');
    if(key.startsWith('physio:guided:')&&(!Number.isInteger(obj.session)||obj.session<0||obj.session>2||!Number.isFinite(obj.remaining)||obj.remaining<0))throw new Error('Invalid workout data.');
