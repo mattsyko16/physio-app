@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Physio Master Hub v7.6.1 Rehab Coach</title>
+<title>Physio Master Hub v7.7 Rehab Coach</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--blue:#2563eb;--green:#16a34a;--amber:#f59e0b;--red:#dc2626;}
 *{box-sizing:border-box}
@@ -135,11 +135,15 @@ body{max-width:1100px;margin:0 auto}
 .autoflow{background:#ecfdf5;border:1px solid #bbf7d0;border-radius:12px;padding:10px;margin-top:10px}
 .autoflow strong{color:#166534}
 
+
+.order-badge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;font-size:11px;font-weight:900;margin-left:6px}
+.custom-item.selected{background:#f5f7ff;border-color:#c7d2fe}
+
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>✅ Physio Master Hub v7.6.1 Rehab Coach</h1>
+  <h1>✅ Physio Master Hub v7.7 Rehab Coach</h1>
   <p class="sub">Stable build: day-by-day behaviour, start date/day type, saved progress per date, readiness, load planner, gig mode, and optional elbow add-ons.</p>
   <div class="nav">
     <button class="tabbtn active" id="tabPlanBtn" onclick="showTab('plan')">Plan</button>
@@ -186,7 +190,7 @@ body{max-width:1100px;margin:0 auto}
     <div class="row" style="justify-content:space-between">
       <div>
         <h3>Full workout selection</h3>
-        <p class="small" style="margin:0">Use the full prescribed list, or build today’s custom list by ticking exercises below.</p>
+        <p class="small" style="margin:0">Use the full prescribed list, or build today’s custom list. The workout order follows the order you tick the exercises.</p>
       </div>
       <label class="pill"><input type="checkbox" id="useCustomFull" onchange="setUseCustomFull(this.checked)"> Use custom list</label>
     </div>
@@ -276,38 +280,16 @@ body{max-width:1100px;margin:0 auto}
   <button class="btn" id="confirmRestore" hidden onclick="restoreProgress()">Restore this backup</button>
 </section>
 
-  <div class="card">
-    <h2 style="margin:0 0 10px;">Start date & rotation</h2>
-    <div class="row">
-      <div class="pill">Start date: <b id="startLabel">—</b></div>
-      <input type="date" id="startPicker" />
-      <button class="btn ghost" onclick="applyStart()">Apply</button>
-      <button class="btn ghost" onclick="makeTodayB()">Make today Day B</button>
-    </div>
-
-
-    <div class="split"></div>
-
-
-    <div class="small">Choose whether the <b>start date</b> is treated as Day A or Day B.</div>
-    <div class="radioRow" style="margin-top:10px">
-      <label class="radioPill"><input type="radio" name="startType" value="A"> Start date is <b>Day A</b></label>
-      <label class="radioPill"><input type="radio" name="startType" value="B"> Start date is <b>Day B</b></label>
-    </div>
-  </div>
-
 
   <div class="card">
-    <h2 style="margin:0 0 10px;">14-day dated plan</h2>
+    <h2 style="margin:0 0 10px;">Selected date</h2>
     <div class="row">
-      <div class="pill">Selected date: <b id="selDateLabel">—</b> <span class="tag" id="selTag">—</span></div>
+      <div class="pill">Date: <b id="selDateLabel">—</b></div>
       <input type="date" id="datePicker" />
       <button class="btn ghost" onclick="jumpToday()">Jump to today</button>
     </div>
-    <p class="small" style="margin-top:10px;">Window: 14 days from start date.</p>
-    <div style="overflow:auto;margin-top:8px"><table id="scheduleTbl"></table></div>
+    <p class="small" style="margin-top:10px;">Choose any date to review or record your rehab.</p>
   </div>
-
 
   <div class="card">
     <h2 style="margin:0 0 10px;">Checklist for selected date</h2>
@@ -513,13 +495,10 @@ body{max-width:1100px;margin:0 auto}
   </div>
 </div>
 
-<div class="footer">v7.6.1 • Auto-flow verified • Per-exercise announcements • Load tracking</div>
+<div class="footer">v7.7 • No A/B rotation • Tick-order custom workouts • Auto-flow • Voice</div>
 
 
 <script>
-const DAYS = 14;
-
-
 const everyday = [
   {id:"ank_ham",title:"Hamstring stretch in stand",meta:"1 set • 3 reps • 20s hold (Ankle & Foot #2)"},
   {id:"ank_pf",title:"Plantar fascia & calf stretch (wall)",meta:"1 set • 3 reps • 20s hold (Ankle & Foot #3)"},
@@ -551,21 +530,6 @@ const elbowOk_add = [
 ];
 
 
-const dayA_add = [
-  {id:"ank_calfraise",title:"Calf raise toes dorsiflexed",meta:"3 sets × 8 reps (Ankle & Foot #5)"},
-  {id:"ank_toeext",title:"AROM great toe extension (add ankle weight across foot)",meta:"3 sets × 8 reps (Ankle & Foot #6)"},
-  {id:"ank_invert",title:"Resisted ankle inversion (band)",meta:"3 sets × 8 reps (Ankle & Foot #7)"}
-];
-
-
-const dayB_add = [
-  {id:"pil_lumrot",title:"Lumbar Rotation",meta:"Hold 5s × 10 each side (Pilates full)"},
-  {id:"pil_oleg",title:"One Leg Stretch 2",meta:"10 each side (Pilates full)"},
-  {id:"pil_cobra2",title:"Cobra 2",meta:"6 reps (Pilates full)"},
-  {id:"pil_bridge",title:"Shoulder Bridge / Spine Curls",meta:"Hold 5s × 6 (Pilates full)"},
-  {id:"pil_backext",title:"Back Extension – Strong",meta:"4 reps (Pilates full)"},
-  {id:"pil_hiptwist",title:"Hip Twist 3",meta:"10 reps each side (Pilates full)"}
-];
 
 
 function parseISO(iso){
@@ -576,33 +540,8 @@ function dateKey(d){ return [d.getFullYear(), String(d.getMonth()+1).padStart(2,
 function fmtDate(d){
   return d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"2-digit"});
 }
-function diffDays(a,b){
-  const one = Date.UTC(a.getFullYear(),a.getMonth(),a.getDate());
-  const two = Date.UTC(b.getFullYear(),b.getMonth(),b.getDate());
-  return Math.floor((one-two)/86400000);
-}
 
 
-const START_KEY = "physio:startDateISO";
-const START_TYPE_KEY = "physio:startType";
-
-
-function getStartISO(){ return localStorage.getItem(START_KEY) || dateKey(new Date()); }
-function getStartType(){ return localStorage.getItem(START_TYPE_KEY) || "A"; }
-function setStart(iso,type){
-  localStorage.setItem(START_KEY, iso);
-  localStorage.setItem(START_TYPE_KEY, type);
-}
-
-
-function getDayType(d){
-  const start = parseISO(getStartISO());
-  const k = diffDays(d,start);
-  if(k < 0 || k >= DAYS) return null;
-  const st = getStartType();
-  if(k % 2 === 0) return st;
-  return st === "A" ? "B" : "A";
-}
 
 
 function elbowOkKey(d){ return "physio:elbowOK:" + dateKey(d); }
@@ -610,11 +549,9 @@ function isElbowOk(d){ return localStorage.getItem(elbowOkKey(d)) === "1"; }
 function setElbowOk(d,v){ localStorage.setItem(elbowOkKey(d), v ? "1" : "0"); }
 
 
-function getChecklist(type, elbowOk, d = currentDate){
+function getChecklist(elbowOk, d = currentDate){
   const list = [...everyday, ...quad, nerveFor(d)];
   if(elbowOk) list.push(...elbowOk_add);
-  if(type === "A") list.push(...dayA_add);
-  if(type === "B") list.push(...dayB_add);
   return list;
 }
 
@@ -639,49 +576,6 @@ function saveJson(key,obj){ localStorage.setItem(key, JSON.stringify(obj)); }
 let currentDate = new Date();
 
 
-function clampToWindow(d){
-  const start = parseISO(getStartISO());
-  const end = new Date(start);
-  end.setDate(start.getDate()+DAYS-1);
-  let sel = d;
-  if(sel < start) sel = start;
-  if(sel > end) sel = end;
-  return sel;
-}
-
-
-function renderSchedule(){
-  const startISO = getStartISO();
-  const start = parseISO(startISO);
-  document.getElementById("startLabel").textContent = fmtDate(start);
-  document.getElementById("startPicker").value = startISO;
-
-
-  const st = getStartType();
-  document.querySelectorAll('input[name="startType"]').forEach(r => {
-    r.checked = (r.value === st);
-  });
-
-
-  let html = "<tr><th>Date</th><th>Type</th></tr>";
-  for(let i=0;i<DAYS;i++){
-    const d = new Date(start);
-    d.setDate(start.getDate()+i);
-    const type = getDayType(d);
-    const tag = type === "A"
-      ? '<span class="tag tagA">DAY A</span>'
-      : '<span class="tag tagB">DAY B</span>';
-    html += `<tr><td>${fmtDate(d)}</td><td style="text-align:center">${tag}</td></tr>`;
-  }
-  document.getElementById("scheduleTbl").innerHTML = html;
-
-
-  const dp = document.getElementById("datePicker");
-  const end = new Date(start);
-  end.setDate(start.getDate()+DAYS-1);
-  dp.min = dateKey(start);
-  dp.max = dateKey(end);
-}
 
 
 function computeStreak(){
@@ -690,9 +584,7 @@ function computeStreak(){
   for(let i=0;i<60;i++){
     const d = new Date(now);
     d.setDate(now.getDate()-i);
-    const type = getDayType(d);
-    if(!type) break;
-    const list = getChecklist(type, isElbowOk(d), d);
+    const list = getChecklist(isElbowOk(d), d);
     const state = loadJson(ckKey(d), {});
     const done = list.filter(it => state[it.id]).length;
     const pct = list.length ? (done/list.length) : 0;
@@ -709,14 +601,10 @@ function renderCurrentDate(){
 
 
 function setSelectedDate(d){
-  currentDate = clampToWindow(d);
-  const type = getDayType(currentDate) || "A";
+  currentDate = new Date(d);
 
 
   document.getElementById("selDateLabel").textContent = fmtDate(currentDate);
-  const tag = document.getElementById("selTag");
-  tag.className = "tag " + (type === "A" ? "tagA" : "tagB");
-  tag.textContent = type === "A" ? "DAY A" : "DAY B";
   document.getElementById("datePicker").value = dateKey(currentDate);
 
 
@@ -742,12 +630,12 @@ function setSelectedDate(d){
   };
 
 
-  document.getElementById("btnMarkAll").onclick = () => markAll(currentDate, type, isElbowOk(currentDate), true);
-  document.getElementById("btnResetDay").onclick = () => markAll(currentDate, type, isElbowOk(currentDate), false);
+  document.getElementById("btnMarkAll").onclick = () => markAll(currentDate, isElbowOk(currentDate), true);
+  document.getElementById("btnResetDay").onclick = () => markAll(currentDate, isElbowOk(currentDate), false);
 
 
-  renderChecklist(currentDate, type, isElbowOk(currentDate));
-  updateProgress(currentDate, type, isElbowOk(currentDate));
+  renderChecklist(currentDate, isElbowOk(currentDate));
+  updateProgress(currentDate, isElbowOk(currentDate));
   loadReadinessToUI();
   loadLoadToUI();
   const coach=document.getElementById("coachIssue");
@@ -758,19 +646,17 @@ function setSelectedDate(d){
 }
 
 
-function renderChecklist(d,type,elbowOk){
+function renderChecklist(d,elbowOk){
   const container = document.getElementById("checklist");
   container.innerHTML = "";
   const state = loadJson(ckKey(d), {});
 
 
   const groups = [
-    {name:"Everyday (do on both Day A & Day B)", items:everyday},
+    {name:"Daily programme", items:everyday},
     {name:"Quadriceps — 19 Jun 2026", items:quad},
     {name:"Median nerve — 3 Aug 2026", items:[nerveFor(d)]},
-    ...(elbowOk ? [{name:"Only when elbow allows (optional add-ons)", items:elbowOk_add}] : []),
-    ...(type === "A" ? [{name:"Day A add-ons (full ankle)", items:dayA_add}] : []),
-    ...(type === "B" ? [{name:"Day B add-ons (Full Pilates)", items:dayB_add}] : [])
+    ...(elbowOk ? [{name:"Only when elbow allows (optional add-on)", items:elbowOk_add}] : [])
   ];
 
 
@@ -797,7 +683,7 @@ function renderChecklist(d,type,elbowOk){
         const s = loadJson(ckKey(d), {});
         s[item.id] = cb.checked;
         saveJson(ckKey(d), s);
-        updateProgress(d, type, isElbowOk(d));
+        updateProgress(d, isElbowOk(d));
       };
 
 
@@ -823,7 +709,7 @@ function renderChecklist(d,type,elbowOk){
       row.appendChild(cb);
       row.appendChild(text);
       container.appendChild(row);
-      attachTracker(row, text, cb, item, d, type);
+      attachTracker(row, text, cb, item, d);
     });
 
 
@@ -834,25 +720,25 @@ function renderChecklist(d,type,elbowOk){
 }
 
 
-function updateProgress(d,type,elbowOk){
-  const list = getChecklist(type, elbowOk, d);
+function updateProgress(d,elbowOk){
+  const list = getChecklist(elbowOk, d);
   const state = loadJson(ckKey(d), {});
   const done = list.filter(i => state[i.id]).length;
   const pct = list.length ? Math.round((done/list.length)*100) : 0;
   document.getElementById("pctDone").textContent = pct + "%";
   document.getElementById("bar").style.width = pct + "%";
   document.getElementById("streak").textContent = computeStreak();
-  updateSetProgress(d,type,elbowOk);
+  updateSetProgress(d,elbowOk);
 }
 
 
-function markAll(d,type,elbowOk,value){
-  const list = getChecklist(type, elbowOk, d);
+function markAll(d,elbowOk,value){
+  const list = getChecklist(elbowOk, d);
   const s = loadJson(ckKey(d), {});
   list.forEach(i => { s[i.id] = value; const rec = recordFor(d,i); rec.done.fill(value); rec.timers = {}; saveRecord(d,i,rec); });
   saveJson(ckKey(d), s);
-  renderChecklist(d, type, elbowOk);
-  updateProgress(d, type, elbowOk);
+  renderChecklist(d, elbowOk);
+  updateProgress(d, elbowOk);
 }
 
 
@@ -861,21 +747,6 @@ function jumpToday(){
 }
 
 
-function applyStart(){
-  const iso = document.getElementById("startPicker").value || dateKey(new Date());
-  const type = document.querySelector('input[name="startType"]:checked').value;
-  setStart(iso, type);
-  renderSchedule();
-  setSelectedDate(new Date());
-}
-
-
-function makeTodayB(){
-  const todayISO = dateKey(new Date());
-  setStart(todayISO, "B");
-  renderSchedule();
-  setSelectedDate(new Date());
-}
 
 
 function showTab(which){
@@ -1087,8 +958,7 @@ function weekDates(){
 function renderHistory(){
   let sessions=0,exercises=0,sets=0,timed=0,pains=[],rows=[];
   weekDates().forEach(d=>{
-    const type=getDayType(d); if(!type) return;
-    const list=getChecklist(type,isElbowOk(d),d);
+    const list=getChecklist(isElbowOk(d),d);
     let dayExercises=0,daySets=0,dayTimed=0;
     list.forEach(item=>{
       const r=recordFor(d,item),sp=dose(item),done=r.done.filter(Boolean).length;
@@ -1122,17 +992,14 @@ function renderHistory(){
 }
 
 function init(){
-  if(!localStorage.getItem(START_KEY)) localStorage.setItem(START_KEY, dateKey(new Date()));
-  if(!localStorage.getItem(START_TYPE_KEY)) localStorage.setItem(START_TYPE_KEY, "A");
   initGig();
-  renderSchedule();
   document.getElementById("datePicker").onchange = () => setSelectedDate(parseISO(document.getElementById("datePicker").value));
   setSelectedDate(new Date());
 }
 
 
 // Explicit prescribed set counts, independent of display wording or daily frequency.
-const prescribedSets={el_pronation_daily:2,el_hammer_daily:2,quad_press:3,quad_extension:3,quad_vmo:3,sh_lat45_2021:3,ank_calfraise:3,ank_toeext:3,ank_invert:3};
+const prescribedSets={el_pronation_daily:2,el_hammer_daily:2,quad_press:3,quad_extension:3,quad_vmo:3,sh_lat45_2021:3};
 function dose(item){
   const m=item.meta;
   const sets=prescribedSets[item.id] ?? Number((m.match(/^(\d+)\s*(?:sets?\s*[•×]|×)/)||[])[1]||1);
@@ -1206,9 +1073,7 @@ const LOAD_TRACKING={
   quad_press:{label:"Weight",type:"kg",unit:"kg"},
   quad_extension:{label:"Weight",type:"kg",unit:"kg"},
   sh_er:{label:"Weight",type:"kg",unit:"kg"},
-  ank_toeext:{label:"Ankle weight",type:"kg",unit:"kg"},
   el_pronation_daily:{label:"Band / load",type:"text",unit:""},
-  ank_invert:{label:"Band / load",type:"text",unit:""}
 };
 function loadConfig(item){return LOAD_TRACKING[item?.id]||null;}
 
@@ -1334,7 +1199,7 @@ function resetCurrentWorkout(){
 
 
 function quickWorkoutList(){
-  const full=getChecklist(getDayType(currentDate),isElbowOk(currentDate),currentDate);
+  const full=getChecklist(isElbowOk(currentDate),currentDate);
   const map=new Map(full.map(i=>[i.id,i]));
   const ids=QUICK_IDS[getQuickFocus()]||QUICK_IDS.general;
   return ids.map(id=>map.get(id)).filter(Boolean);
@@ -1343,19 +1208,22 @@ function quickWorkoutList(){
 function customFullKey(d=currentDate){return "physio:customFull:v1:"+dateKey(d);}
 function useCustomFullKey(d=currentDate){return "physio:useCustomFull:"+dateKey(d);}
 function isUsingCustomFull(){return localStorage.getItem(useCustomFullKey())==="1";}
-function fullPrescribedList(d=currentDate){return getChecklist(getDayType(d),isElbowOk(d),d);}
+function fullPrescribedList(d=currentDate){return getChecklist(isElbowOk(d),d);}
 function getCustomFullIds(d=currentDate){
   const full=fullPrescribedList(d),saved=loadJson(customFullKey(d),null);
-  if(!Array.isArray(saved))return full.map(i=>i.id);
-  const valid=new Set(full.map(i=>i.id));return saved.filter(id=>valid.has(id));
+  if(!Array.isArray(saved))return [];
+  const valid=new Set(full.map(i=>i.id));
+  return saved.filter((id,index)=>valid.has(id)&&saved.indexOf(id)===index);
 }
 function selectedFullList(d=currentDate){
   const full=fullPrescribedList(d);if(!isUsingCustomFull())return full;
-  const ids=new Set(getCustomFullIds(d));return full.filter(i=>ids.has(i.id));
+  const map=new Map(full.map(i=>[i.id,i]));
+  return getCustomFullIds(d).map(id=>map.get(id)).filter(Boolean);
 }
 function saveCustomFullIds(ids,d=currentDate){saveJson(customFullKey(d),ids);}
 function setUseCustomFull(enabled){
   localStorage.setItem(useCustomFullKey(),enabled?"1":"0");
+  if(enabled && !Array.isArray(loadJson(customFullKey(),null))) saveCustomFullIds([]);
   const cb=document.getElementById("useCustomFull");if(cb)cb.checked=enabled;
   guided=null;guidedDate=null;renderCustomFullBuilder();renderWorkout();
 }
@@ -1367,19 +1235,22 @@ function restorePrescribedCustomFull(){
   renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();
 }
 function toggleCustomFullItem(id,checked){
-  const ids=new Set(getCustomFullIds());if(checked)ids.add(id);else ids.delete(id);
-  saveCustomFullIds([...ids]);renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();
+  let ids=getCustomFullIds().filter(x=>x!==id);
+  if(checked) ids.push(id);
+  saveCustomFullIds(ids);
+  renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();
 }
 function renderCustomFullBuilder(){
   const wrap=document.getElementById("fullOptions"),listEl=document.getElementById("customFullList"),preview=document.getElementById("customFullPreview"),cb=document.getElementById("useCustomFull");
   if(!wrap||!listEl||!preview||!cb)return;
   wrap.hidden=getWorkoutMode()!=="full";cb.checked=isUsingCustomFull();
-  const full=fullPrescribedList(),selected=new Set(getCustomFullIds());listEl.innerHTML="";
+  const full=fullPrescribedList(),orderedIds=getCustomFullIds(),selected=new Set(orderedIds);listEl.innerHTML="";
   full.forEach(item=>{
-    const row=document.createElement("label");row.className="custom-item";
+    const row=document.createElement("label");row.className="custom-item"+(selected.has(item.id)?" selected":"");
     const box=document.createElement("input");box.type="checkbox";box.checked=selected.has(item.id);box.onchange=()=>toggleCustomFullItem(item.id,box.checked);
     const body=document.createElement("div");body.style.flex="1";
     const title=document.createElement("div");title.className="item-title";title.textContent=item.title;
+    if(selected.has(item.id)){const badge=document.createElement("span");badge.className="order-badge";badge.textContent="#"+(orderedIds.indexOf(item.id)+1);title.appendChild(badge);}
     const meta=document.createElement("div");meta.className="item-meta";meta.textContent=item.meta;body.appendChild(title);body.appendChild(meta);
     const start=document.createElement("button");start.type="button";start.className="btn ghost start-here";start.textContent="Start here";start.onclick=(e)=>{e.preventDefault();manualSelectWorkoutItem(item.id);};
     row.appendChild(box);row.appendChild(body);row.appendChild(start);listEl.appendChild(row);
@@ -1450,15 +1321,15 @@ function recordFor(d,item){
   return {done:Array(n).fill(complete),values:[],loads:Array(n).fill(""),timers:{}};
 }
 function saveRecord(d,item,r){saveJson(trackKey(d,item),r);}
-function updateSetProgress(d,type,ok){
+function updateSetProgress(d,ok){
   let done=0,total=0;
-  getChecklist(type,ok,d).forEach(i=>{const r=recordFor(d,i); total+=r.done.length;done+=r.done.filter(Boolean).length;});
+  getChecklist(ok,d).forEach(i=>{const r=recordFor(d,i); total+=r.done.length;done+=r.done.filter(Boolean).length;});
   document.getElementById('setProgress').textContent=`Sets / sessions: ${done} of ${total} (${total?Math.round(100*done/total):0}%)`;
 }
-function attachTracker(row,body,cb,item,d,type){
+function attachTracker(row,body,cb,item,d){
   const spec=dose(item); let r=recordFor(d,item);
   const panel=document.createElement('div');panel.className='track';body.appendChild(panel);
-  function persist(){saveRecord(d,item,r);const s=loadJson(ckKey(d),{});s[item.id]=r.done.every(Boolean);saveJson(ckKey(d),s);cb.checked=s[item.id];row.classList.toggle('finished',cb.checked);updateProgress(d,type,isElbowOk(d));}
+  function persist(){saveRecord(d,item,r);const s=loadJson(ckKey(d),{});s[item.id]=r.done.every(Boolean);saveJson(ckKey(d),s);cb.checked=s[item.id];row.classList.toggle('finished',cb.checked);updateProgress(d,isElbowOk(d));}
   for(let session=0;session<spec.sessions;session++){
     const line=document.createElement('div');line.className='row';panel.appendChild(line);
     const name=document.createElement('span');name.className='small';name.textContent=spec.sessions>1?`Session ${session+1}`:'Sets';line.appendChild(name);
@@ -1489,7 +1360,7 @@ function attachTracker(row,body,cb,item,d,type){
       }
     }
   }
-  cb.onchange=()=>{r=recordFor(d,item);r.done.fill(cb.checked);persist();renderChecklist(d,type,isElbowOk(d));};
+  cb.onchange=()=>{r=recordFor(d,item);r.done.fill(cb.checked);persist();renderChecklist(d,isElbowOk(d));};
   row.classList.toggle('finished',cb.checked);
   (spec.seconds?['Exercise','Rest']:['Rest']).forEach(kind=>{
     const line=document.createElement('div');line.className='row';panel.appendChild(line);
@@ -1702,14 +1573,14 @@ function renderGuidedSets(item){
   const paint=()=>{const done=recordFor(currentDate,item).done[ix];button.textContent=`Set ${n+1}${done?' ✓':''}`;button.setAttribute('aria-pressed',String(done));button.classList.toggle('setdone',done);};paint();
   button.onclick=()=>{
     const r=recordFor(currentDate,item);r.done[ix]=!r.done[ix];saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);
-    renderChecklist(currentDate,getDayType(currentDate),isElbowOk(currentDate));updateProgress(currentDate,getDayType(currentDate),isElbowOk(currentDate));
+    renderChecklist(currentDate,isElbowOk(currentDate));updateProgress(currentDate,isElbowOk(currentDate));
     if(!guided.timed&&r.done[ix]){const sessionDone=r.done.slice(guided.session*spec.sets,(guided.session+1)*spec.sets).every(Boolean);if(sessionDone){setTimeout(()=>autoFinishCurrentExercise(),150);}else{guided.mode='rest';guided.remaining=guided.restSeconds*1000;guided.end=null;guided.flowDone=false;workoutSave();speakPrompt('Rest');startWorkoutTimer();}}
   };
   const label=document.createElement('label');label.className='small';label.textContent=`Set ${n+1} reps completed `;
   const input=document.createElement('input');input.type='number';input.min='0';input.max='9999';input.step='1';input.style.width='80px';
   const r=recordFor(currentDate,item);input.value=(r.repValues||[])[ix]??(!guided.timed?r.values[ix]??'':'');
   input.setAttribute('aria-label',`${item.title}, set ${n+1}, reps completed`);
-  input.oninput=()=>{if(!input.checkValidity())return;const rec=recordFor(currentDate,item);rec.repValues ||= [];rec.repValues[ix]=input.value;if(!guided.timed)rec.values[ix]=input.value;saveRecord(currentDate,item,rec);};input.onchange=()=>{input.oninput();renderChecklist(currentDate,getDayType(currentDate),isElbowOk(currentDate));};
+  input.oninput=()=>{if(!input.checkValidity())return;const rec=recordFor(currentDate,item);rec.repValues ||= [];rec.repValues[ix]=input.value;if(!guided.timed)rec.values[ix]=input.value;saveRecord(currentDate,item,rec);};input.onchange=()=>{input.oninput();renderChecklist(currentDate,isElbowOk(currentDate));};
   label.appendChild(input);line.appendChild(button);line.appendChild(label);
   const cfg=loadConfig(item);
   if(cfg){
