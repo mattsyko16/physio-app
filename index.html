@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Physio Master Hub v7.8 Rehab Coach</title>
+<title>Physio Master Hub v7.8.2 Rehab Coach</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--blue:#2563eb;--green:#16a34a;--amber:#f59e0b;--red:#dc2626;}
 *{box-sizing:border-box}
@@ -149,7 +149,7 @@ body{max-width:1100px;margin:0 auto}
 </head>
 <body>
 <div class="topbar">
-  <h1>✅ Physio Master Hub v7.8 Rehab Coach</h1>
+  <h1>✅ Physio Master Hub v7.8.2 Rehab Coach</h1>
   <p class="sub">Stable build: day-by-day behaviour, start date/day type, saved progress per date, readiness, load planner, gig mode, and optional elbow add-ons.</p>
   <div class="nav">
     <button class="tabbtn active" id="tabPlanBtn" onclick="showTab('plan')">Plan</button>
@@ -223,7 +223,7 @@ body{max-width:1100px;margin:0 auto}
       <button class="focusbtn" data-focus="elbow" onclick="setQuickFocus('elbow')">💪 Elbow priority<br><span class="small">Elbow first + light mobility</span></button>
     </div>
     <div class="quicknote small">
-      <b>Quick 15 rule:</b> elbow flexion pronation + hammer curl are always included. The rest of the session is selected from your existing programme for the chosen focus. It records only what you actually complete; it does not mark the omitted full-workout exercises as done.
+      <b>Quick 15 rule:</b> elbow flexion pronation + hammer curl are always included. For Elbow Priority, the active median-nerve exercise is also included: Median Nerve Glide normally, switching to Median Nerve Stretch once the progression toggle is enabled because the glide is easy. The rest of the session is selected from your existing programme for the chosen focus. It records only what you actually complete; it does not mark the omitted full-workout exercises as done.
     </div>
     <div class="routine-preview" id="quickRoutinePreview">
       <h3>Selected Quick 15 routine</h3>
@@ -329,7 +329,7 @@ body{max-width:1100px;margin:0 auto}
 
     <div class="split"></div>
     <label class="pill"><input type="checkbox" id="nerveProgression"> Use Median Nerve Stretch progression once glide is easy</label>
-    <p class="small">OFF: Median Nerve Glide Floss 8. ON: Median Nerve Stretch replaces the glide for this date. Both are 10 reps, twice daily.</p>
+    <p class="small">OFF: Median Nerve Glide Floss 8. ON: Median Nerve Stretch replaces the glide from the selected date onward. Both are 10 reps, twice daily.</p>
     <p class="small">Tick sets for each session; exercise checkboxes complete or clear all its sets. Timers do not tick sets automatically. Progress is saved for the selected date in this browser.</p>
     <div class="pill" id="setProgress" aria-live="polite"></div><p class="small" id="saveStatus" role="status"></p>
     <div id="checklist"></div>
@@ -507,7 +507,7 @@ body{max-width:1100px;margin:0 auto}
   </div>
 </div>
 
-<div class="footer">v7.8 • Detailed exercise history • Weight/load log • Auto-flow • Voice</div>
+<div class="footer">v7.8.2 • Pre-upload verified • Median nerve progression • Auto-flow • Detailed history</div>
 
 
 <script>
@@ -536,7 +536,14 @@ const quad = [
 ];
 const nerveGlide = {id:"nerve_glide",title:"Median Nerve Glide Floss 8",meta:"10 reps • twice daily (03-08-2026)",video:"https://youtu.be/9IsG0oW6_d4"};
 const nerveStretch = {id:"nerve_stretch",title:"Median Nerve Stretch",meta:"10 reps • twice daily • progression once glide is easy (03-08-2026)",video:"https://youtu.be/eWAS25uPe9Y"};
-function nerveFor(d){ return localStorage.getItem("physio:nerveProgression:"+dateKey(d)) === "1" ? nerveStretch : nerveGlide; }
+const NERVE_PROGRESS_START_KEY="physio:nerveProgressionStart";
+function nerveFor(d){
+  const legacy=localStorage.getItem("physio:nerveProgression:"+dateKey(d));
+  if(legacy==="1") return nerveStretch;
+  if(legacy==="0") return nerveGlide;
+  const start=localStorage.getItem(NERVE_PROGRESS_START_KEY);
+  return start && dateKey(d)>=start ? nerveStretch : nerveGlide;
+}
 const elbowOk_add = [
   {id:"sh_lat45_2021",title:"Lateral 45° Raise (palm up)",meta:"3 × 45s holds • 1× daily (15-10-2021)"}
 ];
@@ -643,7 +650,13 @@ function setSelectedDate(d){
 
   const np = document.getElementById("nerveProgression");
   np.checked = nerveFor(currentDate).id === "nerve_stretch";
-  np.onchange = () => { localStorage.setItem("physio:nerveProgression:"+dateKey(currentDate),np.checked ? "1" : "0"); renderCurrentDate(); };
+  np.onchange = () => {
+    const day=dateKey(currentDate);
+    localStorage.removeItem("physio:nerveProgression:"+day);
+    if(np.checked) localStorage.setItem(NERVE_PROGRESS_START_KEY,day);
+    else localStorage.removeItem(NERVE_PROGRESS_START_KEY);
+    renderCurrentDate();
+  };
   const storedPain = localStorage.getItem(painKey(currentDate));
   const pr = document.getElementById("pain");
   pr.value = storedPain !== null ? storedPain : 0;
@@ -1095,9 +1108,9 @@ const QUICK_IDS={
   general:["el_pronation_daily","el_hammer_daily","neck_sideflex","sh_tl","ank_pf","quad_vmo","mob_cat"],
   neck:["el_pronation_daily","el_hammer_daily","neck_sideflex","neck_handgrab","mob_ttn","mob_armopen","sh_tl"],
   shoulder:["el_pronation_daily","el_hammer_daily","sh_tl","mob_armopen","mob_ttn","sh_er","sh_foam"],
-  foot:["el_pronation_daily","el_hammer_daily","ank_pf","ank_ball","ank_ham","ank_calfraise","ank_invert"],
+  foot:["el_pronation_daily","el_hammer_daily","ank_pf","ank_ball","ank_ham"],
   quad:["el_pronation_daily","el_hammer_daily","quad_vmo","quad_press","quad_extension","ank_ham"],
-  elbow:["el_pronation_daily","el_hammer_daily","sh_tl","neck_sideflex","mob_armopen"]
+  elbow:["el_pronation_daily","el_hammer_daily","nerve_glide","nerve_stretch","sh_tl","neck_sideflex","mob_armopen"]
 };
 
 // Exercises where recording external load/resistance is useful.
@@ -1354,7 +1367,10 @@ function renderCustomFullBuilder(){
     const title=document.createElement("div");title.className="item-title";title.textContent=item.title;
     if(selected.has(item.id)){const badge=document.createElement("span");badge.className="order-badge";badge.textContent="#"+(orderedIds.indexOf(item.id)+1);title.appendChild(badge);}
     const meta=document.createElement("div");meta.className="item-meta";meta.textContent=item.meta;body.appendChild(title);body.appendChild(meta);
-    const start=document.createElement("button");start.type="button";start.className="btn ghost start-here";start.textContent="Start here";start.onclick=(e)=>{e.preventDefault();manualSelectWorkoutItem(item.id);};
+    const start=document.createElement("button");start.type="button";start.className="btn ghost start-here";start.textContent="Start here";
+    start.disabled=isUsingCustomFull()&&!selected.has(item.id);
+    start.title=start.disabled?"Tick this exercise first to include it in the custom routine.":"Start the guided workout from this exercise.";
+    start.onclick=(e)=>{e.preventDefault();if(!start.disabled)manualSelectWorkoutItem(item.id);};
     row.appendChild(box);row.appendChild(body);row.appendChild(start);listEl.appendChild(row);
   });
   const chosen=isUsingCustomFull()?selectedFullList():full;
@@ -1543,7 +1559,23 @@ function timerRepCount(item){
    m.match(/Hold\s+\d+s\s*×\s*(\d+)/i);
  return Number(match?.[1]||1);
 }
-function chooseWorkoutItem(item){guided.id=item?.id||null;guided.timerVersion=2;guided.timed=!!(item&&dose(item).seconds);guided.duration=item?dose(item).seconds:0;guided.restSeconds=item?defaultRestSeconds(item):30;guided.reps=timerRepCount(item);guided.sets=item?dose(item).sets:1;guided.cycle=0;guided.flowDone=false;guided.remaining=(guided.timed?guided.duration:guided.restSeconds)*1000;guided.end=null;guided.mode=guided.timed?'exercise':'rest';guided.paused=false;guided.wasRunning=false;}
+function chooseWorkoutItem(item){
+  guided.id=item?.id||null;
+  guided.timerVersion=2;
+  guided.timed=!!(item&&dose(item).seconds);
+  guided.duration=item?dose(item).seconds:0;
+  guided.restSeconds=item?defaultRestSeconds(item):30;
+  guided.reps=timerRepCount(item);
+  guided.sets=item?dose(item).sets:1;
+  guided.cycle=0;
+  guided.flowDone=false;
+  guided.afterRestNextId=null;
+  guided.remaining=(guided.timed?guided.duration:guided.restSeconds)*1000;
+  guided.end=null;
+  guided.mode=guided.timed?'exercise':'rest';
+  guided.paused=false;
+  guided.wasRunning=false;
+}
 function announceWorkoutItem(item,prefix="Next exercise"){if(item)speakPrompt(prefix+". "+item.title);}
 function announceExerciseFinished(item,next){
   if(!item)return;
@@ -1562,24 +1594,66 @@ function manualSelectWorkoutItem(itemId){
 
 function advanceWorkoutPhase(){
  playTimerSound();
- if(!guided.timed){guided.end=null;guided.remaining=0;workoutSave();return;}
- if(guided.mode==='rest'){guided.mode='exercise';guided.remaining=guided.duration*1000;speakPrompt('Work');guided.end=Date.now()+guided.remaining;workoutSave();return;}
+
+ if(guided.mode==='rest' && guided.afterRestNextId){
+   const nextId=guided.afterRestNextId;
+   const next=workoutList().find(i=>i.id===nextId);
+   if(!next){guided.afterRestNextId=null;guided.end=null;guided.remaining=0;workoutSave();return;}
+   chooseWorkoutItem(next);
+   if(guided.timed){
+     speakPrompt("Next exercise. "+next.title+". Work.");
+     guided.end=Date.now()+guided.remaining;
+   }else{
+     speakPrompt("Next exercise. "+next.title+". Begin when ready.");
+     guided.end=null;
+   }
+   workoutSave();renderCurrentDate();return;
+ }
+
+ if(!guided.timed){
+   guided.end=null;
+   guided.remaining=guided.restSeconds*1000;
+   speakPrompt("Rest complete. Next set.");
+   workoutSave();paintWorkoutClock();return;
+ }
+
+ if(guided.mode==='rest'){
+   guided.mode='exercise';
+   guided.remaining=guided.duration*1000;
+   speakPrompt('Work');
+   guided.end=Date.now()+guided.remaining;
+   workoutSave();return;
+ }
+
  if(guided.cycle+1>=guided.reps*guided.sets){autoFinishCurrentExercise();return;}
- guided.cycle++;guided.mode='rest';guided.remaining=guided.restSeconds*1000;speakPrompt('Rest');guided.end=Date.now()+guided.remaining;workoutSave();
+
+ guided.cycle++;
+ guided.mode='rest';
+ guided.remaining=guided.restSeconds*1000;
+ speakPrompt('Rest');
+ guided.end=Date.now()+guided.remaining;
+ workoutSave();
 }
 function autoFinishCurrentExercise(){
   const item=workoutList().find(i=>i.id===guided.id);if(!item)return;
-  const spec=dose(item),r=recordFor(currentDate,item);for(let n=guided.session*spec.sets;n<(guided.session+1)*spec.sets;n++)r.done[n]=true;saveRecord(currentDate,item,r);
+  const spec=dose(item),r=recordFor(currentDate,item);
+  for(let n=guided.session*spec.sets;n<(guided.session+1)*spec.sets;n++)r.done[n]=true;
+  saveRecord(currentDate,item,r);
   const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);
+
   const pending=workoutPending(),next=pending.find(i=>i.id!==item.id)||pending[0];
   if(next){
-    announceExerciseFinished(item,next);
-    chooseWorkoutItem(next);workoutSave();renderCurrentDate();
-    if(guided.timed)setTimeout(()=>startWorkoutTimer(),450);
-  }
-  else{
+    speakPrompt(item.title+" complete. Rest.");
+    guided.afterRestNextId=next.id;
+    guided.mode='rest';
+    guided.flowDone=false;
+    guided.remaining=guided.restSeconds*1000;
+    guided.end=Date.now()+guided.remaining;
+    workoutSave();renderCurrentDate();
+  }else{
     announceExerciseFinished(item,null);
-    guided.flowDone=true;guided.end=null;guided.remaining=0;workoutSave();renderCurrentDate();showWorkoutCompletion();
+    guided.flowDone=true;guided.end=null;guided.remaining=0;guided.afterRestNextId=null;
+    workoutSave();renderCurrentDate();showWorkoutCompletion();
   }
 }
 function renderWorkout(){
@@ -1627,7 +1701,11 @@ function paintWorkoutClock(){
  document.getElementById('workoutClock').textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
  document.getElementById('workoutStart').textContent=guided.mode==='rest'?'Restart rest':'Start / resume timer';
  document.getElementById('workoutStart').disabled=!guided.id||!!guided.end||guided.paused||guided.flowDone;
- document.getElementById('workoutPhase').textContent=!guided.timed?(guided.end?'Resting':guided.remaining===0?'Rest finished — start again when needed.':'Rest timer · start manually'):guided.flowDone?'Timed sequence finished — press Complete exercise when ready.':`${guided.mode==='rest'?'Rest before':'Work'} · Set ${Math.floor(guided.cycle/guided.reps)+1} of ${guided.sets} · Rep ${guided.cycle%guided.reps+1} of ${guided.reps}`;
+ document.getElementById('workoutPhase').textContent=
+   guided.afterRestNextId ? 'Rest before next exercise' :
+   !guided.timed ? (guided.end?'Resting — next set will be announced automatically':'Perform the next set, then tick it complete') :
+   guided.flowDone ? 'Timed sequence complete' :
+   `${guided.mode==='rest'?'Rest before':'Work'} · Set ${Math.floor(guided.cycle/guided.reps)+1} of ${guided.sets} · Rep ${guided.cycle%guided.reps+1} of ${guided.reps}`;
  ['workoutRestSeconds','workoutReps','workoutSets'].forEach(id=>document.getElementById(id).disabled=!!guided.end||guided.paused);
  document.getElementById('workoutPause').textContent=guided.paused?'Resume workout':'Pause workout';
  document.getElementById('workoutPause').disabled=!guided.id;
@@ -1655,14 +1733,22 @@ function completeWorkoutExercise(){
  for(let n=guided.session*spec.sets;n<(guided.session+1)*spec.sets;n++)r.done[n]=true;
  saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);
  const nxt=workoutPending()[0];
- announceExerciseFinished(item,nxt||null);
- chooseWorkoutItem(nxt);workoutSave();renderCurrentDate();
- if(guided.id&&guided.timed)setTimeout(()=>startWorkoutTimer(),450);
+ if(nxt){
+   speakPrompt(item.title+" complete. Rest.");
+   guided.afterRestNextId=nxt.id;
+   guided.mode='rest';guided.flowDone=false;
+   guided.remaining=guided.restSeconds*1000;
+   guided.end=Date.now()+guided.remaining;
+   workoutSave();renderCurrentDate();
+ }else{
+   announceExerciseFinished(item,null);
+   chooseWorkoutItem(null);guided.flowDone=true;workoutSave();renderCurrentDate();showWorkoutCompletion();
+ }
 }
 function skipWorkoutExercise(){if(guided.paused)return;const pending=workoutPending(),pos=pending.findIndex(i=>i.id===guided.id);chooseWorkoutItem(pending[(pos+1)%pending.length]);workoutSave();renderWorkout();}
 function undoWorkoutExercise(){const u=guided.undo;if(!u)return;const item=workoutList().find(i=>i.id===u.id);if(!item)return;const r=recordFor(currentDate,item);r.done=u.done;saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);chooseWorkoutItem(item);guided.undo=null;workoutSave();renderCurrentDate();}
 const originalUpdateSetProgress=updateSetProgress;
-updateSetProgress=function(d,type,ok){originalUpdateSetProgress(d,type,ok);renderWorkout();};
+updateSetProgress=function(d,ok){originalUpdateSetProgress(d,ok);renderWorkout();};
 setInterval(paintWorkoutClock,250);
 
 function renderGuidedSets(item){
