@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Physio Master Hub v7.7 Rehab Coach</title>
+<title>Physio Master Hub v7.8 Rehab Coach</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--blue:#2563eb;--green:#16a34a;--amber:#f59e0b;--red:#dc2626;}
 *{box-sizing:border-box}
@@ -139,11 +139,17 @@ body{max-width:1100px;margin:0 auto}
 .order-badge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;font-size:11px;font-weight:900;margin-left:6px}
 .custom-item.selected{background:#f5f7ff;border-color:#c7d2fe}
 
+
+.history-exercise{font-weight:800;min-width:190px}
+.history-load{white-space:nowrap}
+.history-partial{font-size:10px;font-weight:800;padding:3px 6px;border-radius:999px;background:#fff7ed;border:1px solid #fed7aa}
+.history-complete{font-size:10px;font-weight:800;padding:3px 6px;border-radius:999px;background:#ecfdf5;border:1px solid #bbf7d0}
+
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>✅ Physio Master Hub v7.7 Rehab Coach</h1>
+  <h1>✅ Physio Master Hub v7.8 Rehab Coach</h1>
   <p class="sub">Stable build: day-by-day behaviour, start date/day type, saved progress per date, readiness, load planner, gig mode, and optional elbow add-ons.</p>
   <div class="nav">
     <button class="tabbtn active" id="tabPlanBtn" onclick="showTab('plan')">Plan</button>
@@ -493,9 +499,15 @@ body{max-width:1100px;margin:0 auto}
     <h2 style="margin:0 0 10px;">Recent days</h2>
     <div style="overflow:auto"><table id="historyTbl"></table></div>
   </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 10px;">Completed exercise log</h2>
+    <p class="small">Shows the exercises actually recorded as completed during the last 14 days. For weighted/resisted work, the saved load is shown per completed set where it was entered.</p>
+    <div style="overflow:auto"><table id="historyExerciseTbl"></table></div>
+  </div>
 </div>
 
-<div class="footer">v7.7 • No A/B rotation • Tick-order custom workouts • Auto-flow • Voice</div>
+<div class="footer">v7.8 • Detailed exercise history • Weight/load log • Auto-flow • Voice</div>
 
 
 <script>
@@ -528,6 +540,27 @@ function nerveFor(d){ return localStorage.getItem("physio:nerveProgression:"+dat
 const elbowOk_add = [
   {id:"sh_lat45_2021",title:"Lateral 45° Raise (palm up)",meta:"3 × 45s holds • 1× daily (15-10-2021)"}
 ];
+
+// Historical-only exercise names so old saved sessions remain readable.
+// These do not appear in the current workout programme.
+const legacyHistoryExercises = [
+  {id:"ank_calfraise",title:"Calf raise toes dorsiflexed",meta:"3 sets × 8 reps"},
+  {id:"ank_toeext",title:"AROM great toe extension",meta:"3 sets × 8 reps"},
+  {id:"ank_invert",title:"Resisted ankle inversion (band)",meta:"3 sets × 8 reps"},
+  {id:"pil_lumrot",title:"Lumbar Rotation",meta:"Hold 5s × 10 each side"},
+  {id:"pil_oleg",title:"One Leg Stretch 2",meta:"10 each side"},
+  {id:"pil_cobra2",title:"Cobra 2",meta:"6 reps"},
+  {id:"pil_bridge",title:"Shoulder Bridge / Spine Curls",meta:"Hold 5s × 6"},
+  {id:"pil_backext",title:"Back Extension – Strong",meta:"4 reps"},
+  {id:"pil_hiptwist",title:"Hip Twist 3",meta:"10 reps each side"}
+];
+
+function historyExerciseCatalog(){
+  const all=[...everyday,...quad,nerveGlide,nerveStretch,...elbowOk_add,...legacyHistoryExercises];
+  const seen=new Set();
+  return all.filter(item=>!seen.has(item.id)&&seen.add(item.id));
+}
+
 
 
 
@@ -989,6 +1022,7 @@ function renderHistory(){
     document.getElementById("histPain").textContent="No scores yet";
     document.getElementById("histPainDetail").textContent="Record pain on the Plan tab to build a trend.";
   }
+  renderExerciseHistory();
 }
 
 function init(){
@@ -1076,6 +1110,74 @@ const LOAD_TRACKING={
   el_pronation_daily:{label:"Band / load",type:"text",unit:""},
 };
 function loadConfig(item){return LOAD_TRACKING[item?.id]||null;}
+const HISTORY_LOAD_CONFIG={
+  ank_toeext:{type:"kg",unit:"kg"},
+  ank_invert:{type:"text",unit:""}
+};
+function historyLoadConfig(item){
+  return loadConfig(item) || HISTORY_LOAD_CONFIG[item?.id] || null;
+}
+function formatHistoryLoads(item,raw,doneFlags){
+  if(!raw || !Array.isArray(raw.loads)) return "—";
+  const cfg=historyLoadConfig(item);
+  const values=[];
+  raw.loads.forEach((value,index)=>{
+    if(!doneFlags[index]) return;
+    if(value===null || value===undefined || String(value).trim()==="") return;
+    values.push(String(value).trim());
+  });
+  if(!values.length) return "—";
+  const unit=cfg?.unit ? " "+cfg.unit : "";
+  // Collapse a repeated load, otherwise show set-by-set values.
+  if(values.every(v=>v===values[0])) return values[0]+unit;
+  return values.map((v,i)=>"S"+(i+1)+": "+v+unit).join(" · ");
+}
+function recentHistoryDates(days=14){
+  const out=[],today=new Date();
+  for(let i=0;i<days;i++){
+    const d=new Date(today);
+    d.setDate(today.getDate()-i);
+    out.push(d);
+  }
+  return out;
+}
+function renderExerciseHistory(){
+  const table=document.getElementById("historyExerciseTbl");
+  if(!table) return;
+  const rows=[];
+  recentHistoryDates(14).forEach(d=>{
+    const checks=loadJson(ckKey(d),{});
+    historyExerciseCatalog().forEach(item=>{
+      const raw=loadJson(trackKey(d,item),null);
+      let doneFlags=[];
+      if(raw && Array.isArray(raw.done)){
+        doneFlags=raw.done.map(Boolean);
+      }else if(checks[item.id]){
+        doneFlags=Array(dose(item).total).fill(true);
+      }else{
+        return;
+      }
+      const doneCount=doneFlags.filter(Boolean).length;
+      if(!doneCount) return;
+      const total=doneFlags.length || dose(item).total || 1;
+      const complete=doneCount>=total;
+      const loadText=formatHistoryLoads(item,raw,doneFlags);
+      const status=complete
+        ? '<span class="history-complete">Complete</span>'
+        : '<span class="history-partial">'+doneCount+'/'+total+' sets</span>';
+      rows.push(`<tr>
+        <td>${d.toLocaleDateString(undefined,{weekday:"short",day:"2-digit",month:"short"})}</td>
+        <td class="history-exercise">${item.title}</td>
+        <td>${status}</td>
+        <td>${doneCount}/${total}</td>
+        <td class="history-load">${loadText}</td>
+      </tr>`);
+    });
+  });
+  table.innerHTML="<tr><th>Date</th><th>Exercise</th><th>Status</th><th>Sets / sessions</th><th>Weight / load</th></tr>"
+    +(rows.length?rows.join(""):'<tr><td colspan="5" class="small">No completed exercises recorded in the last 14 days.</td></tr>');
+}
+
 
 function previousLoadFor(d,item,setIndex){
   const cfg=loadConfig(item); if(!cfg) return "";
