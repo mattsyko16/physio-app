@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Physio Master Hub v7.2 Rehab Coach</title>
+<title>Physio Master Hub v7.6.1 Rehab Coach</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--blue:#2563eb;--green:#16a34a;--amber:#f59e0b;--red:#dc2626;}
 *{box-sizing:border-box}
@@ -124,11 +124,22 @@ body{max-width:1100px;margin:0 auto}
 .routine-list li{margin:6px 0;font-size:12px;line-height:1.35}
 .routine-list .essential{font-weight:800}
 
+
+.custom-full{margin-top:12px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px}
+.custom-full h3{font-size:14px;margin:0 0 8px}
+.custom-list{display:grid;gap:8px;margin-top:10px}
+.custom-item{display:flex;gap:10px;align-items:flex-start;padding:9px;border:1px solid var(--border);border-radius:10px;background:#fafafa}
+.custom-item input{margin-top:3px}
+.inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.start-here{margin-left:auto;white-space:nowrap}
+.autoflow{background:#ecfdf5;border:1px solid #bbf7d0;border-radius:12px;padding:10px;margin-top:10px}
+.autoflow strong{color:#166534}
+
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>✅ Physio Master Hub v7.2 Rehab Coach</h1>
+  <h1>✅ Physio Master Hub v7.6.1 Rehab Coach</h1>
   <p class="sub">Stable build: day-by-day behaviour, start date/day type, saved progress per date, readiness, load planner, gig mode, and optional elbow add-ons.</p>
   <div class="nav">
     <button class="tabbtn active" id="tabPlanBtn" onclick="showTab('plan')">Plan</button>
@@ -171,6 +182,25 @@ body{max-width:1100px;margin:0 auto}
     <button class="modebtn active" id="modeFull" onclick="setWorkoutMode('full')">Full workout</button>
     <button class="modebtn" id="modeQuick" onclick="setWorkoutMode('quick')">Quick 15</button>
   </div>
+  <div id="fullOptions" class="custom-full">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <h3>Full workout selection</h3>
+        <p class="small" style="margin:0">Use the full prescribed list, or build today’s custom list by ticking exercises below.</p>
+      </div>
+      <label class="pill"><input type="checkbox" id="useCustomFull" onchange="setUseCustomFull(this.checked)"> Use custom list</label>
+    </div>
+    <div class="inline-actions">
+      <button class="btn ghost" onclick="selectAllCustomFull()">Select all</button>
+      <button class="btn ghost" onclick="clearAllCustomFull()">Clear all</button>
+      <button class="btn ghost" onclick="restorePrescribedCustomFull()">Restore prescribed full workout</button>
+    </div>
+    <div id="customFullList" class="custom-list"></div>
+    <div class="routine-preview">
+      <h3>Selected Full routine</h3>
+      <div id="customFullPreview" class="small">Full prescribed workout selected.</div>
+    </div>
+  </div>
 
   <div id="quickOptions" hidden>
     <div class="small"><b>Quick 15 focus</b> — choose the area that needs most attention today:</div>
@@ -208,6 +238,7 @@ body{max-width:1100px;margin:0 auto}
   </div>
   <div id="workoutControls">
     <div class="row" style="margin:18px 0"><label class="small" id="workoutWorkLabel">Work seconds <input id="workoutSeconds" type="number" min="1" max="86400" step="1" value="30" onchange="setWorkoutSeconds()" style="width:90px;padding:10px;border:1px solid var(--border);border-radius:10px"></label><output id="workoutClock" class="timer" style="font-size:36px">0:00</output></div>
+    <div class="autoflow small"><strong>Auto-flow on:</strong> timed exercises automatically run Work → Rest → next set → next exercise. Rep-based exercises start the rest timer when you mark a set complete, and auto-advance after the final set.</div>
     <div class="row small">
       <label>Rest seconds <input id="workoutRestSeconds" type="number" min="1" max="86400" value="30" onchange="setWorkoutSeconds()" style="width:80px"></label>
       <label id="workoutRepsLabel">Reps per set <input id="workoutReps" type="number" min="1" max="200" value="1" onchange="setWorkoutSeconds()" style="width:70px"></label>
@@ -482,7 +513,7 @@ body{max-width:1100px;margin:0 auto}
   </div>
 </div>
 
-<div class="footer">v7.2 • Rehab Coach • Quick 15 routine preview • Confirm completion • Load tracking</div>
+<div class="footer">v7.6.1 • Auto-flow verified • Per-exercise announcements • Load tracking</div>
 
 
 <script>
@@ -516,9 +547,7 @@ const nerveGlide = {id:"nerve_glide",title:"Median Nerve Glide Floss 8",meta:"10
 const nerveStretch = {id:"nerve_stretch",title:"Median Nerve Stretch",meta:"10 reps • twice daily • progression once glide is easy (03-08-2026)",video:"https://youtu.be/eWAS25uPe9Y"};
 function nerveFor(d){ return localStorage.getItem("physio:nerveProgression:"+dateKey(d)) === "1" ? nerveStretch : nerveGlide; }
 const elbowOk_add = [
-  {id:"sh_band_er_2021",title:"External Rotation with Band",meta:"3 × 45s holds • 1× daily (15-10-2021)"},
-  {id:"sh_lat45_2021",title:"Lateral 45° Raise (palm up)",meta:"3 × 45s holds • 1× daily (15-10-2021)"},
-  {id:"el_bicep_2021",title:"Elbow Flexion / Bicep Curl (DB)",meta:"3 × 45s • 1× daily (15-10-2021) — only if elbow OK"}
+  {id:"sh_lat45_2021",title:"Lateral 45° Raise (palm up)",meta:"3 × 45s holds • 1× daily (15-10-2021)"}
 ];
 
 
@@ -724,6 +753,7 @@ function setSelectedDate(d){
   const coach=document.getElementById("coachIssue");
   if(coach) coach.value=getCoachIssue();
   renderQuickRoutinePreview();
+  renderCustomFullBuilder();
   buildCoachRecommendation();
 }
 
@@ -789,6 +819,7 @@ function renderChecklist(d,type,elbowOk){
         demo.className="btn ghost demo"; demo.href=item.video; demo.target="_blank"; demo.rel="noopener noreferrer";
         demo.textContent="▶ Watch Demo"; text.appendChild(demo);
       }
+      const startHere=document.createElement("button");startHere.className="btn ghost demo";startHere.type="button";startHere.textContent="▶ Start here";startHere.onclick=()=>manualSelectWorkoutItem(item.id);text.appendChild(startHere);
       row.appendChild(cb);
       row.appendChild(text);
       container.appendChild(row);
@@ -1047,7 +1078,6 @@ function showWorkoutCompletion(){
     <p class="small">${getWorkoutMode()==="quick"?"Quick 15 records only the exercises you completed; the rest of the full plan stays outstanding.":""}</p>
     <p class="small">Pain recorded today: <b>${pain}/10</b></p>`;
   box.hidden=false;
-  speakPrompt("Workout complete");
 }
 function weekDates(){
   const now=new Date(), start=new Date(now);
@@ -1102,7 +1132,7 @@ function init(){
 
 
 // Explicit prescribed set counts, independent of display wording or daily frequency.
-const prescribedSets={el_pronation_daily:2,el_hammer_daily:2,quad_press:3,quad_extension:3,quad_vmo:3,sh_band_er_2021:3,sh_lat45_2021:3,el_bicep_2021:3,ank_calfraise:3,ank_toeext:3,ank_invert:3};
+const prescribedSets={el_pronation_daily:2,el_hammer_daily:2,quad_press:3,quad_extension:3,quad_vmo:3,sh_lat45_2021:3,ank_calfraise:3,ank_toeext:3,ank_invert:3};
 function dose(item){
   const m=item.meta;
   const sets=prescribedSets[item.id] ?? Number((m.match(/^(\d+)\s*(?:sets?\s*[•×]|×)/)||[])[1]||1);
@@ -1139,10 +1169,9 @@ function setWorkoutMode(mode){
   document.getElementById("modeFull").classList.toggle("active",mode==="full");
   document.getElementById("modeQuick").classList.toggle("active",mode==="quick");
   document.getElementById("quickOptions").hidden=mode!=="quick";
-  document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(getQuickFocus()) : "Full workout";
-  renderQuickRoutinePreview();
-  guided=null; guidedDate=null;
-  renderWorkout();
+  const fullOptions=document.getElementById("fullOptions");if(fullOptions)fullOptions.hidden=mode!=="full";
+  document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(getQuickFocus()) : (isUsingCustomFull()?"Full workout · Custom":"Full workout");
+  renderQuickRoutinePreview();renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();
 }
 
 function setQuickFocus(focus){
@@ -1177,10 +1206,8 @@ const LOAD_TRACKING={
   quad_press:{label:"Weight",type:"kg",unit:"kg"},
   quad_extension:{label:"Weight",type:"kg",unit:"kg"},
   sh_er:{label:"Weight",type:"kg",unit:"kg"},
-  el_bicep_2021:{label:"Weight",type:"kg",unit:"kg"},
   ank_toeext:{label:"Ankle weight",type:"kg",unit:"kg"},
   el_pronation_daily:{label:"Band / load",type:"text",unit:""},
-  sh_band_er_2021:{label:"Band / load",type:"text",unit:""},
   ank_invert:{label:"Band / load",type:"text",unit:""}
 };
 function loadConfig(item){return LOAD_TRACKING[item?.id]||null;}
@@ -1277,7 +1304,7 @@ function chooseAlternateCoachPlan(recommendedMode,issue){
 
 function resetCurrentWorkout(){
   const mode=getWorkoutMode();
-  const list=(mode==="quick"?quickWorkoutList():getChecklist(getDayType(currentDate),isElbowOk(currentDate),currentDate));
+  const list=(mode==="quick"?quickWorkoutList():selectedFullList());
   const checks=loadJson(ckKey(currentDate),{});
   list.forEach(item=>{
     const r=recordFor(currentDate,item);
@@ -1313,6 +1340,56 @@ function quickWorkoutList(){
   return ids.map(id=>map.get(id)).filter(Boolean);
 }
 
+function customFullKey(d=currentDate){return "physio:customFull:v1:"+dateKey(d);}
+function useCustomFullKey(d=currentDate){return "physio:useCustomFull:"+dateKey(d);}
+function isUsingCustomFull(){return localStorage.getItem(useCustomFullKey())==="1";}
+function fullPrescribedList(d=currentDate){return getChecklist(getDayType(d),isElbowOk(d),d);}
+function getCustomFullIds(d=currentDate){
+  const full=fullPrescribedList(d),saved=loadJson(customFullKey(d),null);
+  if(!Array.isArray(saved))return full.map(i=>i.id);
+  const valid=new Set(full.map(i=>i.id));return saved.filter(id=>valid.has(id));
+}
+function selectedFullList(d=currentDate){
+  const full=fullPrescribedList(d);if(!isUsingCustomFull())return full;
+  const ids=new Set(getCustomFullIds(d));return full.filter(i=>ids.has(i.id));
+}
+function saveCustomFullIds(ids,d=currentDate){saveJson(customFullKey(d),ids);}
+function setUseCustomFull(enabled){
+  localStorage.setItem(useCustomFullKey(),enabled?"1":"0");
+  const cb=document.getElementById("useCustomFull");if(cb)cb.checked=enabled;
+  guided=null;guidedDate=null;renderCustomFullBuilder();renderWorkout();
+}
+function selectAllCustomFull(){saveCustomFullIds(fullPrescribedList().map(i=>i.id));renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();}
+function clearAllCustomFull(){saveCustomFullIds([]);renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();}
+function restorePrescribedCustomFull(){
+  saveCustomFullIds(fullPrescribedList().map(i=>i.id));localStorage.setItem(useCustomFullKey(),"0");
+  const cb=document.getElementById("useCustomFull");if(cb)cb.checked=false;
+  renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();
+}
+function toggleCustomFullItem(id,checked){
+  const ids=new Set(getCustomFullIds());if(checked)ids.add(id);else ids.delete(id);
+  saveCustomFullIds([...ids]);renderCustomFullBuilder();guided=null;guidedDate=null;renderWorkout();
+}
+function renderCustomFullBuilder(){
+  const wrap=document.getElementById("fullOptions"),listEl=document.getElementById("customFullList"),preview=document.getElementById("customFullPreview"),cb=document.getElementById("useCustomFull");
+  if(!wrap||!listEl||!preview||!cb)return;
+  wrap.hidden=getWorkoutMode()!=="full";cb.checked=isUsingCustomFull();
+  const full=fullPrescribedList(),selected=new Set(getCustomFullIds());listEl.innerHTML="";
+  full.forEach(item=>{
+    const row=document.createElement("label");row.className="custom-item";
+    const box=document.createElement("input");box.type="checkbox";box.checked=selected.has(item.id);box.onchange=()=>toggleCustomFullItem(item.id,box.checked);
+    const body=document.createElement("div");body.style.flex="1";
+    const title=document.createElement("div");title.className="item-title";title.textContent=item.title;
+    const meta=document.createElement("div");meta.className="item-meta";meta.textContent=item.meta;body.appendChild(title);body.appendChild(meta);
+    const start=document.createElement("button");start.type="button";start.className="btn ghost start-here";start.textContent="Start here";start.onclick=(e)=>{e.preventDefault();manualSelectWorkoutItem(item.id);};
+    row.appendChild(box);row.appendChild(body);row.appendChild(start);listEl.appendChild(row);
+  });
+  const chosen=isUsingCustomFull()?selectedFullList():full;
+  if(!chosen.length){preview.textContent="No exercises selected. Tick at least one exercise or restore the full workout.";return;}
+  const ul=document.createElement("ul");ul.className="routine-list";chosen.forEach(item=>{const li=document.createElement("li");li.textContent=item.title+" — "+item.meta;ul.appendChild(li);});preview.innerHTML="";preview.appendChild(ul);
+}
+
+
 function renderQuickRoutinePreview(){
   const box=document.getElementById("quickRoutineList");
   if(!box) return;
@@ -1327,8 +1404,10 @@ function renderQuickRoutinePreview(){
     const li=document.createElement("li");
     const essential=item.id==="el_pronation_daily"||item.id==="el_hammer_daily";
     li.className=essential?"essential":"";
-    li.textContent=(essential?"ESSENTIAL · ":"")+item.title+" — "+item.meta;
-    ul.appendChild(li);
+    const line=document.createElement("div");line.className="row";line.style.justifyContent="space-between";
+    const span=document.createElement("span");span.textContent=(essential?"ESSENTIAL · ":"")+item.title+" — "+item.meta;
+    const start=document.createElement("button");start.className="btn ghost";start.textContent="Start here";start.onclick=()=>manualSelectWorkoutItem(item.id);
+    line.appendChild(span);line.appendChild(start);li.appendChild(line);ul.appendChild(li);
   });
   box.innerHTML="";
   box.appendChild(ul);
@@ -1344,11 +1423,9 @@ function setVoicePrompts(enabled){
   if(enabled) speakPrompt("Voice prompts on");
 }
 function masterStartWorkout(){
-  showTab("plan");
-  document.getElementById("workout").scrollIntoView({behavior:"smooth",block:"start"});
-  const pending=workoutPending();
-  if(!guided?.id && pending.length){chooseWorkoutItem(pending[0]);workoutSave();renderWorkout();}
-  if(guided?.id) speakPrompt("Starting " + document.getElementById("workoutTitle").textContent);
+  showTab("plan");document.getElementById("workout").scrollIntoView({behavior:"smooth",block:"start"});
+  const pending=workoutPending();if(!guided?.id&&pending.length){chooseWorkoutItem(pending[0]);workoutSave();renderWorkout();}
+  if(guided?.id){const item=workoutList().find(i=>i.id===guided.id);announceWorkoutItem(item,"Starting");if(guided.timed)setTimeout(()=>startWorkoutTimer(),450);}
 }
 function updateHeroProgress(){
   if(!guided) return;
@@ -1461,6 +1538,7 @@ function confirmSessionComplete(){
   const box=document.getElementById('finishConfirm');
   if(box) box.classList.add('saved');
   renderHistory();
+  speakPrompt(getWorkoutMode()==='quick' ? 'Quick 15 complete. Well done.' : 'Workout complete. Well done.');
 }
 function renderSessionConfirm(){
   const state=getSessionConfirmState();
@@ -1480,22 +1558,56 @@ function renderSessionConfirm(){
 }
 
 function workoutSave(){saveJson(workoutKey(),guided);}
-function workoutList(){const base=getWorkoutMode()==='quick'?quickWorkoutList():getChecklist(getDayType(currentDate),isElbowOk(currentDate),currentDate);return base.filter(i=>dose(i).sessions>guided.session);}
+function workoutList(){const base=getWorkoutMode()==='quick'?quickWorkoutList():selectedFullList();return base.filter(i=>dose(i).sessions>guided.session);}
 function workoutPending(){return workoutList().filter(i=>{const spec=dose(i),r=recordFor(currentDate,i);return !r.done.slice(guided.session*spec.sets,(guided.session+1)*spec.sets).every(Boolean);});}
 function guidedRemaining(){return guided.end?Math.max(0,guided.end-Date.now()):guided.remaining;}
 function timerRepCount(item){
  const m=item?.meta||'';
- const match=m.match(/(?:×|•)\s*(\d+)\s*(?:reps?|each)/)||m.match(/^(\d+)\s*(?:reps?|each)/)||m.match(/×\s*(\d+)\s*each/);
+ const match=
+   m.match(/(?:×|•)\s*(\d+)\s*(?:reps?|each)/)||
+   m.match(/^(\d+)\s*(?:reps?|each)/)||
+   m.match(/×\s*(\d+)\s*each/)||
+   m.match(/Hold\s+\d+s\s*×\s*(\d+)/i);
  return Number(match?.[1]||1);
 }
 function chooseWorkoutItem(item){guided.id=item?.id||null;guided.timerVersion=2;guided.timed=!!(item&&dose(item).seconds);guided.duration=item?dose(item).seconds:0;guided.restSeconds=item?defaultRestSeconds(item):30;guided.reps=timerRepCount(item);guided.sets=item?dose(item).sets:1;guided.cycle=0;guided.flowDone=false;guided.remaining=(guided.timed?guided.duration:guided.restSeconds)*1000;guided.end=null;guided.mode=guided.timed?'exercise':'rest';guided.paused=false;guided.wasRunning=false;}
+function announceWorkoutItem(item,prefix="Next exercise"){if(item)speakPrompt(prefix+". "+item.title);}
+function announceExerciseFinished(item,next){
+  if(!item)return;
+  if(next){
+    speakPrompt(item.title+" complete. Next exercise. "+next.title);
+  }else{
+    speakPrompt(item.title+" complete. "+(getWorkoutMode()==='quick' ? "Quick 15 complete. Well done." : "Workout complete. Well done."));
+  }
+}
+
+function manualSelectWorkoutItem(itemId){
+  if(!guided){guided={session:0,id:null,remaining:0,end:null,paused:false,undo:null};guidedDate=dateKey(currentDate);}
+  const item=workoutList().find(i=>i.id===itemId)||fullPrescribedList().find(i=>i.id===itemId);if(!item)return;
+  chooseWorkoutItem(item);workoutSave();announceWorkoutItem(item,"Selected exercise");renderWorkout();if(guided.timed)setTimeout(()=>startWorkoutTimer(),350);
+}
+
 function advanceWorkoutPhase(){
  playTimerSound();
  if(!guided.timed){guided.end=null;guided.remaining=0;workoutSave();return;}
- if(guided.mode==='rest'){guided.mode='exercise';guided.remaining=guided.duration*1000;speakPrompt('Next work interval');}
- else if(guided.cycle+1>=guided.reps*guided.sets){guided.flowDone=true;guided.end=null;guided.remaining=0;workoutSave();return;}
- else{guided.cycle++;guided.mode='rest';guided.remaining=guided.restSeconds*1000;speakPrompt('Rest');}
- guided.end=Date.now()+guided.remaining;workoutSave();
+ if(guided.mode==='rest'){guided.mode='exercise';guided.remaining=guided.duration*1000;speakPrompt('Work');guided.end=Date.now()+guided.remaining;workoutSave();return;}
+ if(guided.cycle+1>=guided.reps*guided.sets){autoFinishCurrentExercise();return;}
+ guided.cycle++;guided.mode='rest';guided.remaining=guided.restSeconds*1000;speakPrompt('Rest');guided.end=Date.now()+guided.remaining;workoutSave();
+}
+function autoFinishCurrentExercise(){
+  const item=workoutList().find(i=>i.id===guided.id);if(!item)return;
+  const spec=dose(item),r=recordFor(currentDate,item);for(let n=guided.session*spec.sets;n<(guided.session+1)*spec.sets;n++)r.done[n]=true;saveRecord(currentDate,item,r);
+  const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);
+  const pending=workoutPending(),next=pending.find(i=>i.id!==item.id)||pending[0];
+  if(next){
+    announceExerciseFinished(item,next);
+    chooseWorkoutItem(next);workoutSave();renderCurrentDate();
+    if(guided.timed)setTimeout(()=>startWorkoutTimer(),450);
+  }
+  else{
+    announceExerciseFinished(item,null);
+    guided.flowDone=true;guided.end=null;guided.remaining=0;workoutSave();renderCurrentDate();showWorkoutCompletion();
+  }
 }
 function renderWorkout(){
  if(guidedDate!==dateKey(currentDate)){
@@ -1522,7 +1634,7 @@ function renderWorkout(){
  document.getElementById('workoutRestSeconds').value=guided.restSeconds;
  document.getElementById('workoutReps').value=guided.reps;
  document.getElementById('workoutSets').value=guided.sets;
- document.getElementById('workoutTimerHint').textContent=!item?'':guided.timed?'Hold time detected from the prescription. Work and rest alternate automatically. Adjust reps for both sides if needed; press Complete exercise to advance.':'Rep-based exercise: perform your reps, record the number completed and tick each set. Start the rest timer manually when needed.';
+ document.getElementById('workoutTimerHint').textContent=!item?'':guided.timed?'Hold time detected from the prescription. Work and rest alternate automatically. Adjust reps for both sides if needed; press Complete exercise to advance.':'Rep-based exercise: perform your reps, record the number completed and tick the set. Rest starts automatically after each completed set, and the workout advances after the final prescribed set.';
  ['workoutWorkLabel','workoutRepsLabel','workoutSetsLabel'].forEach(id=>document.getElementById(id).hidden=!guided.timed);
  document.getElementById('workoutRestNow').hidden=!guided.timed;
  renderGuidedSets(item);
@@ -1540,7 +1652,7 @@ function paintWorkoutClock(){
  if(guided.end && sec===10 && !guided._tenSpoken){guided._tenSpoken=true;speakPrompt("10 seconds");}
  if(sec>10) guided._tenSpoken=false;
  document.getElementById('workoutClock').textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
- document.getElementById('workoutStart').textContent=guided.mode==='rest'?'Start rest timer':'Start timer';
+ document.getElementById('workoutStart').textContent=guided.mode==='rest'?'Restart rest':'Start / resume timer';
  document.getElementById('workoutStart').disabled=!guided.id||!!guided.end||guided.paused||guided.flowDone;
  document.getElementById('workoutPhase').textContent=!guided.timed?(guided.end?'Resting':guided.remaining===0?'Rest finished — start again when needed.':'Rest timer · start manually'):guided.flowDone?'Timed sequence finished — press Complete exercise when ready.':`${guided.mode==='rest'?'Rest before':'Work'} · Set ${Math.floor(guided.cycle/guided.reps)+1} of ${guided.sets} · Rep ${guided.cycle%guided.reps+1} of ${guided.reps}`;
  ['workoutRestSeconds','workoutReps','workoutSets'].forEach(id=>document.getElementById(id).disabled=!!guided.end||guided.paused);
@@ -1569,7 +1681,10 @@ function completeWorkoutExercise(){
  guided.undo={id:item.id,session:guided.session,done:[...r.done]};
  for(let n=guided.session*spec.sets;n<(guided.session+1)*spec.sets;n++)r.done[n]=true;
  saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);
- chooseWorkoutItem(workoutPending()[0]);workoutSave();renderCurrentDate();if(guided.id)speakPrompt('Next exercise');
+ const nxt=workoutPending()[0];
+ announceExerciseFinished(item,nxt||null);
+ chooseWorkoutItem(nxt);workoutSave();renderCurrentDate();
+ if(guided.id&&guided.timed)setTimeout(()=>startWorkoutTimer(),450);
 }
 function skipWorkoutExercise(){if(guided.paused)return;const pending=workoutPending(),pos=pending.findIndex(i=>i.id===guided.id);chooseWorkoutItem(pending[(pos+1)%pending.length]);workoutSave();renderWorkout();}
 function undoWorkoutExercise(){const u=guided.undo;if(!u)return;const item=workoutList().find(i=>i.id===u.id);if(!item)return;const r=recordFor(currentDate,item);r.done=u.done;saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);chooseWorkoutItem(item);guided.undo=null;workoutSave();renderCurrentDate();}
@@ -1585,7 +1700,11 @@ function renderGuidedSets(item){
   const ix=guided.session*spec.sets+n, line=document.createElement('div');line.className='row';line.style.marginTop='10px';
   const button=document.createElement('button');button.className='btn ghost';
   const paint=()=>{const done=recordFor(currentDate,item).done[ix];button.textContent=`Set ${n+1}${done?' ✓':''}`;button.setAttribute('aria-pressed',String(done));button.classList.toggle('setdone',done);};paint();
-  button.onclick=()=>{const r=recordFor(currentDate,item);r.done[ix]=!r.done[ix];saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);renderChecklist(currentDate,getDayType(currentDate),isElbowOk(currentDate));updateProgress(currentDate,getDayType(currentDate),isElbowOk(currentDate));};
+  button.onclick=()=>{
+    const r=recordFor(currentDate,item);r.done[ix]=!r.done[ix];saveRecord(currentDate,item,r);const checks=loadJson(ckKey(currentDate),{});checks[item.id]=r.done.every(Boolean);saveJson(ckKey(currentDate),checks);
+    renderChecklist(currentDate,getDayType(currentDate),isElbowOk(currentDate));updateProgress(currentDate,getDayType(currentDate),isElbowOk(currentDate));
+    if(!guided.timed&&r.done[ix]){const sessionDone=r.done.slice(guided.session*spec.sets,(guided.session+1)*spec.sets).every(Boolean);if(sessionDone){setTimeout(()=>autoFinishCurrentExercise(),150);}else{guided.mode='rest';guided.remaining=guided.restSeconds*1000;guided.end=null;guided.flowDone=false;workoutSave();speakPrompt('Rest');startWorkoutTimer();}}
+  };
   const label=document.createElement('label');label.className='small';label.textContent=`Set ${n+1} reps completed `;
   const input=document.createElement('input');input.type='number';input.min='0';input.max='9999';input.step='1';input.style.width='80px';
   const r=recordFor(currentDate,item);input.value=(r.repValues||[])[ix]??(!guided.timed?r.values[ix]??'':'');
@@ -1644,8 +1763,9 @@ function initAppTools(){
  document.getElementById("modeQuick").classList.toggle("active",mode==="quick");
  document.getElementById("quickOptions").hidden=mode!=="quick";
  document.querySelectorAll(".focusbtn").forEach(b=>b.classList.toggle("active",b.dataset.focus===focus));
- document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(focus) : "Full workout";
+ document.getElementById("modeSummary").textContent=mode==="quick" ? "Quick 15 · "+quickFocusLabel(focus) : (isUsingCustomFull()?"Full workout · Custom":"Full workout");
  renderQuickRoutinePreview();
+ renderCustomFullBuilder();
  document.addEventListener('pointerdown',()=>{if(document.getElementById('timerSound').checked)prepareSound();});
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&awakeWanted)requestScreenAwake();});
 }
